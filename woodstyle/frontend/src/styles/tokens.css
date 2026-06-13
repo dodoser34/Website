@@ -1,0 +1,41 @@
+@layer tokens {
+  :root {
+    --paper: #f6f3ed;
+    --paper-deep: #eee9df;
+    --surface: #fffdfa;
+    --surface-strong: #ffffff;
+    --ink: #1d211b;
+    --ink-soft: #353b31;
+    --muted: #75766f;
+    --line: #ded8cc;
+    --line-dark: rgba(255, 255, 255, 0.14);
+    --forest: #263023;
+    --forest-soft: #34402f;
+    --olive: #687054;
+    --olive-pale: #dfe2d5;
+    --oak: #a06f46;
+    --oak-dark: #765033;
+    --brass: #b5935e;
+    --danger: #a2473f;
+    --success: #477054;
+    --warning: #936c38;
+    --serif: 'Prata', 'Yu Mincho', 'Hiragino Mincho ProN', Georgia, serif;
+    --sans: 'Manrope', 'Yu Gothic', 'Hiragino Kaku Gothic ProN', Meiryo, 'Segoe UI', sans-serif;
+    --shadow-sm: 0 8px 25px rgba(46, 38, 27, 0.07);
+    --shadow-md: 0 20px 60px rgba(46, 38, 27, 0.12);
+    --shadow-lg: 0 30px 90px rgba(32, 30, 24, 0.18);
+    --radius-xs: 8px;
+    --radius-sm: 12px;
+    --radius-md: 20px;
+    --radius-lg: 30px;
+    --radius-pill: 999px;
+    --container: 1320px;
+    --header-height: 78px;
+    font-family: var(--sans);
+    color: var(--ink);
+    background: var(--paper);
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+}

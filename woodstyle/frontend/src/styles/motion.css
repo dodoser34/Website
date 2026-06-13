@@ -1,0 +1,69 @@
+@layer motion {
+  @keyframes shimmer {
+    to {
+      transform: translateX(100%);
+    }
+  }
+
+  @keyframes reveal-up {
+    from {
+      opacity: 0;
+      transform: translateY(22px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes toast-in {
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+  }
+
+  .reveal {
+    animation: reveal-up 650ms both cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .reveal-delay-1 {
+    animation-delay: 90ms;
+  }
+
+  .reveal-delay-2 {
+    animation-delay: 180ms;
+  }
+
+  .reveal-delay-3 {
+    animation-delay: 270ms;
+  }
+
+  .skeleton {
+    position: relative;
+  }
+
+  .skeleton::after {
+    position: absolute;
+    inset: 0;
+    content: '';
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.65), transparent);
+    transform: translateX(-100%);
+    animation: shimmer 1.4s infinite;
+  }
+
+  .toast {
+    animation: toast-in 250ms ease both;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      scroll-behavior: auto !important;
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}

@@ -1,0 +1,97 @@
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    background: var(--paper);
+  }
+
+  body {
+    min-width: 320px;
+    min-height: 100vh;
+    margin: 0;
+    color: var(--ink);
+    background:
+      radial-gradient(circle at 12% 18%, rgba(181, 147, 94, 0.07), transparent 24rem),
+      var(--paper);
+  }
+
+  body.menu-open {
+    overflow: hidden;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+  }
+
+  button,
+  a {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  button {
+    color: inherit;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  img {
+    display: block;
+    max-width: 100%;
+  }
+
+  h1,
+  h2,
+  h3,
+  p {
+    margin-top: 0;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  ::selection {
+    color: #fff;
+    background: var(--olive);
+  }
+
+  :focus-visible {
+    outline: 3px solid rgba(160, 111, 70, 0.28);
+    outline-offset: 3px;
+  }
+
+  #root,
+  .app-shell {
+    min-height: 100vh;
+  }
+
+  .app-shell {
+    display: flex;
+    flex-direction: column;
+    overflow: clip;
+  }
+
+  main {
+    flex: 1;
+  }
+
+  .container {
+    width: min(var(--container), calc(100% - 64px));
+    margin-inline: auto;
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "name": "woodstyle-frontend",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@fontsource/manrope": "^5.2.8",
+    "@fontsource/prata": "^5.2.7",
+    "@hookform/resolvers": "^5.2.2",
+    "@tanstack/react-query": "^5.90.21",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "react-hook-form": "^7.71.1",
+    "react-router-dom": "^7.9.4",
+    "zod": "^4.3.6",
+    "zustand": "^5.0.11"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "eslint": "^10.0.1",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.4.24",
+    "globals": "^17.0.0",
+    "typescript": "^5.9.3",
+    "vite": "^8.0.12",
+    "vitest": "^4.0.18"
+  }
+}

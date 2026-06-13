@@ -1,0 +1,270 @@
+@layer forms {
+  .field {
+    display: grid;
+    min-width: 0;
+    gap: 8px;
+  }
+
+  .field-label {
+    color: var(--ink-soft);
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .field input,
+  .field textarea,
+  .field select,
+  .select-shell select,
+  .catalog-search input,
+  .toolbar-select select,
+  .table-input,
+  .admin-search input,
+  .inline-inputs input {
+    width: 100%;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-xs);
+    color: var(--ink);
+    background: var(--surface-strong);
+    transition: border-color 180ms ease, box-shadow 180ms ease, background 180ms ease;
+  }
+
+  .field input,
+  .field select,
+  .select-shell select,
+  .table-input,
+  .inline-inputs input {
+    min-height: 48px;
+    padding: 0 14px;
+  }
+
+  .field textarea {
+    min-height: 130px;
+    padding: 13px 14px;
+    resize: vertical;
+    line-height: 1.6;
+  }
+
+  .field input::placeholder,
+  .field textarea::placeholder,
+  .catalog-search input::placeholder {
+    color: #a4a097;
+  }
+
+  .field input:hover,
+  .field textarea:hover,
+  .field select:hover {
+    border-color: #c5bcaf;
+  }
+
+  .field input:focus,
+  .field textarea:focus,
+  .field select:focus,
+  .catalog-search input:focus,
+  .table-input:focus,
+  .admin-search input:focus,
+  .inline-inputs input:focus {
+    outline: none;
+    border-color: var(--olive);
+    box-shadow: 0 0 0 4px rgba(104, 112, 84, 0.1);
+  }
+
+  .field input:disabled,
+  .field textarea:disabled,
+  .field select:disabled {
+    color: #9c9a93;
+    background: #efede8;
+    cursor: not-allowed;
+  }
+
+  .field small {
+    color: var(--muted);
+    font-size: 9px;
+    line-height: 1.45;
+  }
+
+  .field-error input,
+  .field-error textarea {
+    border-color: var(--danger);
+    background: #fffafa;
+  }
+
+  .field-error small {
+    color: var(--danger);
+  }
+
+  .select-shell {
+    display: flex;
+  }
+
+  .select-shell select,
+  .toolbar-select select {
+    padding-right: 37px;
+    appearance: none;
+  }
+
+  .select-shell svg {
+    position: absolute;
+    right: 13px;
+    pointer-events: none;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .form-message {
+    display: flex;
+    align-items: center;
+    min-height: 42px;
+    margin: 0;
+    padding: 10px 13px;
+    border-radius: var(--radius-xs);
+    font-size: 10px;
+    line-height: 1.5;
+  }
+
+  .form-message.success {
+    color: #31513a;
+    background: #deeadf;
+  }
+
+  .form-message.error {
+    color: #7d302b;
+    background: #f3ddda;
+  }
+
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 42px;
+    height: 24px;
+  }
+
+  .switch input {
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+  }
+
+  .switch span {
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius-pill);
+    background: #cbc6bc;
+    cursor: pointer;
+    transition: 180ms ease;
+  }
+
+  .switch span::after {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    content: '';
+    background: #fff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.18);
+    transition: 180ms ease;
+  }
+
+  .switch input:checked + span {
+    background: var(--success);
+  }
+
+  .switch input:checked + span::after {
+    transform: translateX(18px);
+  }
+
+  .file-dropzone {
+    position: relative;
+    display: grid;
+    min-height: 310px;
+    place-items: center;
+    align-content: center;
+    gap: 10px;
+    overflow: hidden;
+    padding: 25px;
+    border: 1px dashed #bfb5a6;
+    border-radius: var(--radius-sm);
+    background: var(--paper);
+    text-align: center;
+    cursor: pointer;
+  }
+
+  .file-dropzone > img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .file-dropzone > img ~ strong,
+  .file-dropzone > img ~ small {
+    position: relative;
+    z-index: 1;
+    padding: 4px 8px;
+    color: #fff;
+    background: rgba(23, 28, 22, 0.75);
+  }
+
+  .file-dropzone-icon {
+    display: grid;
+    width: 52px;
+    height: 52px;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--olive-pale);
+  }
+
+  .file-dropzone strong {
+    font-size: 11px;
+  }
+
+  .file-dropzone small {
+    color: var(--muted);
+    font-size: 9px;
+  }
+
+  .file-dropzone input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+  }
+
+  .checkbox-field {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 9px;
+    cursor: pointer;
+  }
+
+  .checkbox-field input {
+    position: absolute;
+    opacity: 0;
+  }
+
+  .checkbox-field > span {
+    display: grid;
+    width: 20px;
+    height: 20px;
+    place-items: center;
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    color: transparent;
+    background: #fff;
+  }
+
+  .checkbox-field input:checked + span {
+    color: #fff;
+    border-color: var(--forest);
+    background: var(--forest);
+  }
+}
