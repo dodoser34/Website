@@ -36,6 +36,9 @@ def products(
     currency: str = "USD",
     db: Session = Depends(get_db),
 ) -> dict[str, object]:
+    allowed_sorts = {"popular", "price-asc", "price-desc", "newest"}
+    if sort not in allowed_sorts:
+        raise HTTPException(status_code=400, detail="Unsupported sort option")
     locale = normalize_locale(locale)
     selected_currency = get_currency(db, currency)
     items = list(

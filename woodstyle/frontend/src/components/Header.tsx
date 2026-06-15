@@ -1,4 +1,5 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { AnimatePresence, motion } from 'motion/react'
 import { useEffect, useState } from 'react'
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 
@@ -7,6 +8,7 @@ import { localeOptions } from '../i18n/config'
 import { getTranslations } from '../i18n'
 import { useGuestStore, usePreferencesStore, useSessionStore } from '../store/app'
 import type { Locale } from '../types'
+import { useToast } from '../shared/ui/ToastProvider'
 import BrandMark from './BrandMark'
 import Icon from './Icon'
 
@@ -20,6 +22,7 @@ export default function Header() {
   const guestFavorites = useGuestStore((state) => state.favorites)
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+  const toast = useToast()
   const copy = getTranslations(locale)
   const currencies = useQuery({ queryKey: ['currencies'], queryFn: () => api.currencies() })
   const me = useQuery({ queryKey: ['me', accessToken], queryFn: api.me, enabled: Boolean(accessToken) })
@@ -49,9 +52,15 @@ export default function Header() {
     return () => document.body.classList.remove('menu-open')
   }, [open])
 
-  const signOut = () => {
+  const signOut = async () => {
+    try {
+      await api.logout(useSessionStore.getState().refreshToken)
+    } catch {
+      // Local state must still be cleared if the server session already expired.
+    }
     logout()
     queryClient.clear()
+    toast.push(copy.common.logout, 'info')
     navigate('/')
   }
 
@@ -109,10 +118,16 @@ export default function Header() {
             </label>
             <Link className="icon-button desktop-action" to="/catalog" aria-label={copy.common.search}><Icon name="search" /></Link>
             <Link className="icon-button desktop-action counted-action" to="/favorites" aria-label={copy.common.favorites}>
-              <Icon name="heart" />{favoriteCount > 0 && <span className="action-badge">{favoriteCount}</span>}
+              <Icon name="heart" />
+              <AnimatePresence mode="popLayout">
+                {favoriteCount > 0 && <motion.span key={favoriteCount} className="action-badge" initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.6, opacity: 0 }}>{favoriteCount}</motion.span>}
+              </AnimatePresence>
             </Link>
             <Link className="icon-button counted-action" to="/cart" aria-label={copy.common.cart}>
-              <Icon name="cart" />{cartCount > 0 && <span className="action-badge">{cartCount}</span>}
+              <Icon name="cart" />
+              <AnimatePresence mode="popLayout">
+                {cartCount > 0 && <motion.span key={cartCount} className="action-badge" initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.6, opacity: 0 }}>{cartCount}</motion.span>}
+              </AnimatePresence>
             </Link>
             {accessToken ? (
               <div className="account-menu">
@@ -124,8 +139,9 @@ export default function Header() {
                   </span>
                   <Icon name="chevron" size={14} />
                 </button>
+                <AnimatePresence>
                 {accountOpen && (
-                  <div className="account-dropdown">
+                  <motion.div className="account-dropdown" initial={{ opacity: 0, y: -8, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -6, scale: 0.98 }}>
                     <div className="account-dropdown-head">
                       <span className="account-avatar large">{(user?.first_name?.[0] || user?.email?.[0] || 'W').toUpperCase()}</span>
                       <span><strong>{user?.first_name} {user?.last_name}</strong><small>{user?.email}</small></span>
@@ -135,8 +151,9 @@ export default function Header() {
                     <Link to="/favorites"><Icon name="heart" />{copy.common.favorites}</Link>
                     {user?.role === 'admin' && <Link to="/admin"><Icon name="sparkles" />{copy.common.admin}</Link>}
                     <button onClick={signOut}><Icon name="close" />{copy.common.logout}</button>
-                  </div>
+                  </motion.div>
                 )}
+                </AnimatePresence>
               </div>
             ) : <Link className="header-login" to="/auth">{copy.common.login}</Link>}
             <button className="icon-button menu-button" onClick={() => setOpen((value) => !value)} aria-expanded={open} aria-label={copy.header.toggleMenu}>

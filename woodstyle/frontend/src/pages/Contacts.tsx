@@ -8,6 +8,7 @@ import { showroom } from '../config/showroom'
 import { useDocumentMeta } from '../hooks/useDocumentMeta'
 import { getTranslations } from '../i18n'
 import { usePreferencesStore } from '../store/app'
+import { useToast } from '../shared/ui/ToastProvider'
 
 export default function Contacts() {
   const locale = usePreferencesStore((state) => state.locale)
@@ -15,9 +16,10 @@ export default function Contacts() {
   const copy = translations.contacts
   const config = showroom(locale)
   const [mapLoaded, setMapLoaded] = useState(false)
-  const [form, setForm] = useState({ name: '', phone: '', email: '', message: '' })
+  const [form, setForm] = useState({ name: '', phone: '', email: '', message: '', website: '' })
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle')
   const [message, setMessage] = useState('')
+  const toast = useToast()
   useDocumentMeta(copy.title, copy.lead, locale)
 
   const submit = async (event: React.FormEvent) => {
@@ -27,10 +29,13 @@ export default function Contacts() {
       await api.contact(form)
       setStatus('success')
       setMessage(copy.sent)
-      setForm({ name: '', phone: '', email: '', message: '' })
+      toast.push(copy.sent, 'success')
+      setForm({ name: '', phone: '', email: '', message: '', website: '' })
     } catch (reason) {
       setStatus('error')
-      setMessage(reason instanceof Error ? reason.message : copy.sendError)
+      const failure = reason instanceof Error ? reason.message : copy.sendError
+      setMessage(failure)
+      toast.push(failure, 'error')
     }
   }
 
@@ -99,6 +104,15 @@ export default function Contacts() {
           </div>
         </div>
         <form className="contact-form reveal reveal-delay-1" onSubmit={submit}>
+          <label className="honeypot-field" aria-hidden="true">
+            Website
+            <input
+              tabIndex={-1}
+              autoComplete="off"
+              value={form.website}
+              onChange={(event) => setForm({ ...form, website: event.target.value })}
+            />
+          </label>
           <div className="form-row">
             <Field label={copy.yourName} placeholder={copy.namePlaceholder} required minLength={2} value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} />
             <Field label={translations.common.phone} placeholder="+49 221 555 0174" required minLength={7} value={form.phone} onChange={(event) => setForm({ ...form, phone: event.target.value })} />

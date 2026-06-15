@@ -11,6 +11,8 @@ import { localeOptions } from '../i18n/config'
 import { getTranslations, interpolate } from '../i18n'
 import { usePreferencesStore, useSessionStore } from '../store/app'
 import type { Address, Locale } from '../types'
+import { ConfirmDialog } from '../shared/ui/ConfirmDialog'
+import { useToast } from '../shared/ui/ToastProvider'
 
 const blankAddress = (locale: Locale): Address => ({
   label: getTranslations(locale).profile.homeLabel,
@@ -40,6 +42,8 @@ export default function Profile() {
   const [address, setAddress] = useState<Address>(() => blankAddress(locale))
   const [profileError, setProfileError] = useState('')
   const [addressError, setAddressError] = useState('')
+  const [deleteAddressId, setDeleteAddressId] = useState<number | null>(null)
+  const toast = useToast()
   useDocumentMeta(translations.common.account, translations.meta.profileDescription, locale)
 
   useEffect(() => {
@@ -66,6 +70,7 @@ export default function Profile() {
       setLocale(user.locale)
       setCurrency(user.currency_code)
       queryClient.setQueryData(['me'], user)
+      toast.push(copy.saved, 'success')
     },
     onError: (error) => setProfileError(error.message),
   })
@@ -82,12 +87,18 @@ export default function Profile() {
         recipient_name: `${form.first_name} ${form.last_name}`.trim(),
         phone: form.phone,
       })
+      toast.push(copy.addAddress, 'success')
     },
     onError: (error) => setAddressError(error.message),
   })
   const deleteAddress = useMutation({
     mutationFn: api.deleteAddress,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['addresses'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['addresses'] })
+      setDeleteAddressId(null)
+      toast.push(copy.deleteAddress, 'success')
+    },
+    onError: (error) => toast.push(error.message, 'error'),
   })
 
   const profileValid = form.first_name.trim().length > 0 && form.currency_code.length === 3
@@ -162,7 +173,7 @@ export default function Profile() {
                   <div className="address-actions">
                     {item.is_default && <em>{copy.defaultAddress}</em>}
                     <button type="button" aria-label={copy.deleteAddress} onClick={() => {
-                      if (item.id && window.confirm(copy.confirmDeleteAddress)) deleteAddress.mutate(item.id)
+                      if (item.id) setDeleteAddressId(item.id)
                     }}><Icon name="close" size={16} /></button>
                   </div>
                 </article>
@@ -202,6 +213,18 @@ export default function Profile() {
           </section>
         </div>
       </div>
+      <ConfirmDialog
+        open={deleteAddressId !== null}
+        title={copy.deleteAddress}
+        message={copy.confirmDeleteAddress}
+        confirmLabel={translations.common.remove}
+        cancelLabel={translations.common.cancel}
+        danger
+        onClose={() => setDeleteAddressId(null)}
+        onConfirm={() => {
+          if (deleteAddressId !== null) deleteAddress.mutate(deleteAddressId)
+        }}
+      />
     </section>
   )
 }

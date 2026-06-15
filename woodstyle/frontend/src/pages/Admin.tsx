@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react'
 import { api, imageFor } from '../api/client'
 import BrandMark from '../components/BrandMark'
 import Icon from '../components/Icon'
-import { Badge, FileDropzone, Field, SelectField, TextareaField } from '../components/ui'
+import { Badge, FileDropzone, Field, SelectField, Skeleton, TextareaField } from '../components/ui'
 import { CurrencyRow } from '../features/admin/CurrencyRow'
 import { DashboardPanel } from '../features/admin/DashboardPanel'
 import { LanguageTabs } from '../features/admin/LanguageTabs'
@@ -25,6 +25,8 @@ import { localeOptions } from '../i18n/config'
 import { getTranslations } from '../i18n'
 import { usePreferencesStore, useSessionStore } from '../store/app'
 import type { Locale } from '../types'
+import { ConfirmDialog } from '../shared/ui/ConfirmDialog'
+import { useToast } from '../shared/ui/ToastProvider'
  
 
 type IconName = Parameters<typeof Icon>[0]['name']
@@ -40,8 +42,9 @@ export default function Admin() {
   const [productForm, setProductForm] = useState(createEmptyProductForm)
   const [categoryForm, setCategoryForm] = useState(createEmptyCategoryForm)
   const [shippingForm, setShippingForm] = useState(createEmptyShippingForm)
-  const [notice, setNotice] = useState<{ text: string; error?: boolean } | null>(null)
+  const [productToHide, setProductToHide] = useState<number | null>(null)
   const queryClient = useQueryClient()
+  const toast = useToast()
   useDocumentMeta(copy.tabs[tab], copy.description, locale)
 
   const dashboard = useQuery({ queryKey: ['admin-dashboard'], queryFn: api.admin.dashboard })
@@ -84,18 +87,20 @@ export default function Admin() {
     }, productForm.id),
     onSuccess: () => {
       setProductForm(createEmptyProductForm())
-      setNotice({ text: copy.editor.saved })
+      toast.push(copy.editor.saved, 'success')
       queryClient.invalidateQueries({ queryKey: ['admin-products'] })
       queryClient.invalidateQueries({ queryKey: ['products'] })
     },
-    onError: (error) => setNotice({ text: error.message, error: true }),
+    onError: (error) => toast.push(error.message, 'error'),
   })
   const deleteProduct = useMutation({
     mutationFn: api.admin.deleteProduct,
     onSuccess: () => {
-      setNotice({ text: copy.editor.hidden })
+      toast.push(copy.editor.hidden, 'success')
+      setProductToHide(null)
       queryClient.invalidateQueries({ queryKey: ['admin-products'] })
     },
+    onError: (error) => toast.push(error.message, 'error'),
   })
   const saveCategory = useMutation({
     mutationFn: () => api.admin.createCategory({
@@ -110,9 +115,10 @@ export default function Admin() {
     }),
     onSuccess: () => {
       setCategoryForm(createEmptyCategoryForm())
-      setNotice({ text: copy.categories.created })
+      toast.push(copy.categories.created, 'success')
       queryClient.invalidateQueries({ queryKey: ['admin-categories'] })
     },
+    onError: (error) => toast.push(error.message, 'error'),
   })
   const updateOrder = useMutation({
     mutationFn: ({ id, status }: { id: number; status: string }) => api.admin.updateOrder(id, status),
@@ -135,8 +141,9 @@ export default function Admin() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-shipping'] })
       setShippingForm(createEmptyShippingForm())
-      setNotice({ text: copy.shipping.created })
+      toast.push(copy.shipping.created, 'success')
     },
+    onError: (error) => toast.push(error.message, 'error'),
   })
   const processMessage = useMutation({
     mutationFn: api.admin.processMessage,
@@ -152,9 +159,12 @@ export default function Admin() {
     try {
       const result = await api.admin.upload(file)
       setProductForm((form) => ({ ...form, image: result.path }))
-      setNotice({ text: copy.editor.uploaded })
+      toast.push(copy.editor.uploaded, 'success')
     } catch (error) {
-      setNotice({ text: error instanceof Error ? error.message : copy.editor.uploadFailed, error: true })
+      toast.push(
+        error instanceof Error ? error.message : copy.editor.uploadFailed,
+        'error',
+      )
     }
   }
 
@@ -191,9 +201,9 @@ export default function Admin() {
             <Icon name="shield" size={16} />
           </div>
         </header>
-        {notice && <div className={`toast ${notice.error ? 'error' : 'success'}`}><Icon name={notice.error ? 'close' : 'check'} /><span>{notice.text}</span><button onClick={() => setNotice(null)}><Icon name="close" size={15} /></button></div>}
-
-        {tab === 'dashboard' && <DashboardPanel dashboard={dashboard.data} products={products} locale={locale} />}
+        {tab === 'dashboard' && (dashboard.isLoading
+          ? <div className="stats-grid">{[0, 1, 2, 3].map((item) => <article key={item}><Skeleton /><Skeleton /><Skeleton /></article>)}</div>
+          : <DashboardPanel dashboard={dashboard.data} products={products} locale={locale} />)}
 
         {tab === 'products' && (
           <>
@@ -252,7 +262,7 @@ export default function Admin() {
             <section className="admin-panel table-wrap">
               <header className="panel-title"><div><small>{visibleProducts.length} {copy.editor.listings}</small><h2>{copy.editor.productCatalog}</h2></div></header>
               <table><thead><tr><th>ID</th><th>{translations.common.product}</th><th>SKU</th><th>USD</th><th>{copy.editor.stock}</th><th>{translations.common.status}</th><th /></tr></thead>
-                <tbody>{visibleProducts.map((item) => <tr key={item.id}><td data-label="ID">{item.id}</td><td data-label={translations.common.product}><div className="table-product"><img src={imageFor(item.image)} alt="" /><span><strong>{fallbackLocaleName(item.translations, locale) || item.slug}</strong><small>{item.translations.en?.name}</small></span></div></td><td data-label="SKU">{item.sku}</td><td data-label="USD">${(item.price_usd_cents / 100).toFixed(2)}</td><td data-label={copy.editor.stock}>{item.stock}</td><td data-label={translations.common.status}><Badge tone={item.is_active ? 'success' : 'danger'}>{item.is_active ? translations.common.active : translations.common.hidden}</Badge></td><td className="row-actions"><button className="small-button" onClick={() => editProduct(item)}>{translations.common.edit}</button><button className="small-button danger" onClick={() => { if (window.confirm(copy.editor.hideConfirm)) deleteProduct.mutate(item.id) }}>{translations.common.hide}</button></td></tr>)}</tbody>
+                <tbody>{visibleProducts.map((item) => <tr key={item.id}><td data-label="ID">{item.id}</td><td data-label={translations.common.product}><div className="table-product"><img src={imageFor(item.image)} alt="" /><span><strong>{fallbackLocaleName(item.translations, locale) || item.slug}</strong><small>{item.translations.en?.name}</small></span></div></td><td data-label="SKU">{item.sku}</td><td data-label="USD">${(item.price_usd_cents / 100).toFixed(2)}</td><td data-label={copy.editor.stock}>{item.stock}</td><td data-label={translations.common.status}><Badge tone={item.is_active ? 'success' : 'danger'}>{item.is_active ? translations.common.active : translations.common.hidden}</Badge></td><td className="row-actions"><button className="small-button" onClick={() => editProduct(item)}>{translations.common.edit}</button><button className="small-button danger" onClick={() => setProductToHide(item.id)}>{translations.common.hide}</button></td></tr>)}</tbody>
               </table>
               {!visibleProducts.length && <div className="admin-empty"><Icon name="search" /><strong>{copy.editor.noProducts}</strong></div>}
             </section>
@@ -323,6 +333,18 @@ export default function Admin() {
 
         {tab === 'messages' && <MessagesPanel messages={messages} locale={locale} query={query} onProcess={(id) => processMessage.mutate(id)} />}
       </div>
+      <ConfirmDialog
+        open={productToHide !== null}
+        title={translations.common.hide}
+        message={copy.editor.hideConfirm}
+        confirmLabel={translations.common.hide}
+        cancelLabel={translations.common.cancel}
+        danger
+        onClose={() => setProductToHide(null)}
+        onConfirm={() => {
+          if (productToHide !== null) deleteProduct.mutate(productToHide)
+        }}
+      />
     </section>
   )
 }

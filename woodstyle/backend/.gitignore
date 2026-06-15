@@ -1,3 +1,10 @@
 __pycache__/
 *.py[cod]
 .venv/
+.env
+data/*.db
+data/*.sqlite
+data/*.sqlite3
+data/backups/*
+!data/.gitignore
+!data/README.md

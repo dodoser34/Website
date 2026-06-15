@@ -1,13 +1,15 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { AnimatePresence, motion } from 'motion/react'
 import { Link } from 'react-router-dom'
 
 import { api, imageFor } from '../api/client'
 import Icon from '../components/Icon'
-import { EmptyState } from '../components/ui'
+import { EmptyState, Skeleton } from '../components/ui'
 import { useDocumentMeta } from '../hooks/useDocumentMeta'
 import { getTranslations } from '../i18n'
 import { useGuestStore, usePreferencesStore, useSessionStore } from '../store/app'
 import { formatMoney } from '../utils/format'
+import { useToast } from '../shared/ui/ToastProvider'
 
 export default function Cart() {
   const { locale, currency } = usePreferencesStore()
@@ -16,6 +18,7 @@ export default function Cart() {
   const token = useSessionStore((state) => state.accessToken)
   const guest = useGuestStore()
   const queryClient = useQueryClient()
+  const toast = useToast()
   useDocumentMeta(translations.common.cart, translations.meta.cartDescription, locale)
   const serverCart = useQuery({
     queryKey: ['cart', locale, currency],
@@ -30,10 +33,15 @@ export default function Cart() {
   const update = useMutation({
     mutationFn: ({ id, quantity }: { id: number; quantity: number }) => api.updateCart(id, quantity, locale, currency),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['cart'] }),
+    onError: (error) => toast.push(error.message, 'error'),
   })
   const remove = useMutation({
     mutationFn: (id: number) => api.deleteCart(id, locale, currency),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['cart'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['cart'] })
+      toast.push(translations.common.remove, 'info')
+    },
+    onError: (error) => toast.push(error.message, 'error'),
   })
 
   const lines = token
@@ -52,13 +60,26 @@ export default function Cart() {
         <h1>{translations.common.cart}</h1>
         <p>{lines.length ? `${lines.reduce((sum, line) => sum + line.quantity, 0)} ${copy.ready}` : ''}</p>
       </div>
-      {!lines.length ? (
+      {(token ? serverCart.isLoading : guestProducts.isLoading) ? (
+        <div className="cart-layout">
+          <div className="cart-lines">{[0, 1].map((item) => <div className="cart-line cart-line-skeleton" key={item}><Skeleton /><Skeleton /><Skeleton /></div>)}</div>
+          <aside className="order-summary"><Skeleton /><Skeleton /><Skeleton /></aside>
+        </div>
+      ) : !lines.length ? (
         <EmptyState icon="cart" title={translations.common.emptyCart} text={copy.emptyText} action={translations.common.viewCatalog} />
       ) : (
         <div className="cart-layout">
           <div className="cart-lines">
+            <AnimatePresence initial={false} mode="popLayout">
             {lines.map((line) => (
-              <article className="cart-line reveal" key={line.id}>
+              <motion.article
+                className="cart-line"
+                key={line.id}
+                layout
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, x: -16, height: 0 }}
+              >
                 <Link className="cart-line-image" to={`/product/${line.product.id}`}><img src={imageFor(line.product.image)} alt={line.product.name} /></Link>
                 <div className="cart-line-copy">
                   <small>{line.product.category}</small><Link to={`/product/${line.product.id}`}>{line.product.name}</Link>
@@ -76,10 +97,11 @@ export default function Cart() {
                     token ? update.mutate({ id: line.id, quantity }) : guest.setCartQuantity(line.product.id, quantity)
                   }}><Icon name="plus" /></button>
                 </div>
-                <strong className="cart-line-price">{formatMoney(line.line_minor, currency, digits, locale)}</strong>
+                <motion.strong key={line.line_minor} className="cart-line-price" initial={{ opacity: 0.5, y: 3 }} animate={{ opacity: 1, y: 0 }}>{formatMoney(line.line_minor, currency, digits, locale)}</motion.strong>
                 <button className="icon-remove" aria-label={translations.common.remove} onClick={() => token ? remove.mutate(line.id) : guest.removeCart(line.product.id)}><Icon name="close" /></button>
-              </article>
+              </motion.article>
             ))}
+            </AnimatePresence>
             <Link className="continue-shopping" to="/catalog"><Icon name="arrow" />{copy.continueShopping}</Link>
           </div>
           <aside className="order-summary">

@@ -236,10 +236,22 @@ def process_card_payment(
     user: User,
     order_id: int,
     card_number: str,
+    idempotency_key: str | None = None,
 ) -> Order:
     order = get_order(db, order_id)
     if order.user_id != user.id:
         raise HTTPException(status_code=404, detail="Order not found")
+    if idempotency_key:
+        existing = db.scalar(
+            select(Payment).where(Payment.idempotency_key == idempotency_key)
+        )
+        if existing:
+            if existing.order_id != order.id:
+                raise HTTPException(
+                    status_code=409,
+                    detail="Idempotency key is already in use",
+                )
+            return get_order(db, order.id)
     if order.status not in {"pending_payment", "payment_failed"}:
         raise HTTPException(status_code=409, detail="Order cannot be paid")
 
@@ -280,8 +292,11 @@ def process_card_payment(
             order_id=order.id,
             provider="local_card",
             reference=f"card_{uuid.uuid4().hex}",
+            idempotency_key=idempotency_key,
         )
         db.add(payment)
+    elif idempotency_key and not payment.idempotency_key:
+        payment.idempotency_key = idempotency_key
     payment.status = payment_status
     payment.last4 = card_number[-4:]
     payment.paid_at = datetime.now(UTC) if payment_status == "paid" else None

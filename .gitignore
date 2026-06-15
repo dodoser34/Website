@@ -8,7 +8,12 @@ woodstyle/backend/__pycache__/
 woodstyle/backend/**/__pycache__/
 woodstyle/backend/.pytest_cache/
 woodstyle/backend/.venv/
+woodstyle/backend/.env
 woodstyle/backend/*.py[cod]
 woodstyle/backend/*.db
+woodstyle/backend/data/*.db
+woodstyle/backend/data/*.sqlite
+woodstyle/backend/data/*.sqlite3
+woodstyle/backend/data/backups/*
 woodstyle/backend/media/*
 woodstyle/backend/tests/*.db

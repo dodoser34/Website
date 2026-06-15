@@ -9,6 +9,7 @@ import { EmptyState, PageHero, Skeleton } from '../components/ui'
 import { useDocumentMeta } from '../hooks/useDocumentMeta'
 import { getTranslations } from '../i18n'
 import { usePreferencesStore } from '../store/app'
+import { Drawer } from '../shared/ui/Drawer'
 
 export default function Catalog() {
   const { locale, currency } = usePreferencesStore()
@@ -54,6 +55,32 @@ export default function Catalog() {
     minPrice && `${copy.from} $${minPrice}`,
     maxPrice && `${copy.to} $${maxPrice}`,
   ].filter(Boolean) as string[]
+  const filterControls = (mobile = false) => (
+    <>
+      <div className="filters-title">
+        <div><small>{copy.eyebrow}</small><h2>{copy.filters}</h2></div>
+      </div>
+      <div className="filter-group">
+        <h3>{copy.room}</h3>
+        <label className="filter-option"><input type="radio" checked={!category} onChange={() => update('category', '')} /><span>{copy.all}</span></label>
+        {(categories.data || []).map((item) => (
+          <label className="filter-option" key={item.id}>
+            <input type="radio" checked={category === item.slug} onChange={() => update('category', item.slug)} />
+            <span>{item.name}</span><small>{item.product_count}</small>
+          </label>
+        ))}
+      </div>
+      <div className="filter-group">
+        <h3>{copy.priceRange}</h3>
+        <div className="price-inputs">
+          <label><span>{copy.from}</span><input aria-label={copy.minimumPrice} type="number" min="0" placeholder="0" value={minPrice} onChange={(event) => update('min', event.target.value)} /></label>
+          <label><span>{copy.to}</span><input aria-label={copy.maximumPrice} type="number" min="0" placeholder="5000" value={maxPrice} onChange={(event) => update('max', event.target.value)} /></label>
+        </div>
+      </div>
+      {activeFilters.length > 0 && <button className="clear-filters" onClick={clear}><Icon name="close" size={15} />{copy.clear}</button>}
+      {mobile && <button className="button button-primary mobile-apply" onClick={() => setFiltersOpen(false)}>{copy.showProducts}</button>}
+    </>
+  )
 
   return (
     <div className="catalog-page">
@@ -83,32 +110,10 @@ export default function Catalog() {
           </label>
         </div>
 
-        <aside className={`filters-panel ${filtersOpen ? 'is-open' : ''}`}>
-          <div className="filters-title">
-            <div><small>{copy.eyebrow}</small><h2>{copy.filters}</h2></div>
-            <button className="mobile-filter-close" onClick={() => setFiltersOpen(false)}><Icon name="close" /></button>
-          </div>
-          <div className="filter-group">
-            <h3>{copy.room}</h3>
-            <label className="filter-option"><input type="radio" checked={!category} onChange={() => update('category', '')} /><span>{copy.all}</span></label>
-            {(categories.data || []).map((item) => (
-              <label className="filter-option" key={item.id}>
-                <input type="radio" checked={category === item.slug} onChange={() => update('category', item.slug)} />
-                <span>{item.name}</span><small>{item.product_count}</small>
-              </label>
-            ))}
-          </div>
-          <div className="filter-group">
-            <h3>{copy.priceRange}</h3>
-            <div className="price-inputs">
-              <label><span>{copy.from}</span><input aria-label={copy.minimumPrice} type="number" min="0" placeholder="0" value={minPrice} onChange={(event) => update('min', event.target.value)} /></label>
-              <label><span>{copy.to}</span><input aria-label={copy.maximumPrice} type="number" min="0" placeholder="5000" value={maxPrice} onChange={(event) => update('max', event.target.value)} /></label>
-            </div>
-          </div>
-          {activeFilters.length > 0 && <button className="clear-filters" onClick={clear}><Icon name="close" size={15} />{copy.clear}</button>}
-          <button className="button button-primary mobile-apply" onClick={() => setFiltersOpen(false)}>{copy.showProducts}</button>
-        </aside>
-        {filtersOpen && <button className="filter-backdrop" onClick={() => setFiltersOpen(false)} aria-label={copy.closeFilters} />}
+        <aside className="filters-panel">{filterControls()}</aside>
+        <Drawer open={filtersOpen} onClose={() => setFiltersOpen(false)} title={copy.filters}>
+          <div className="mobile-drawer-filters">{filterControls(true)}</div>
+        </Drawer>
 
         <div className="catalog-results">
           <div className="catalog-toolbar">

@@ -1,0 +1,6 @@
+*.db
+*.sqlite
+*.sqlite3
+backups/*
+!.gitignore
+!README.md

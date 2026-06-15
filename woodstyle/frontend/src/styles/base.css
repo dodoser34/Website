@@ -16,6 +16,18 @@
     background:
       radial-gradient(circle at 12% 18%, rgba(181, 147, 94, 0.07), transparent 24rem),
       var(--paper);
+    overflow-x: hidden;
+  }
+
+  body::before {
+    position: fixed;
+    z-index: -1;
+    inset: 0;
+    content: '';
+    opacity: 0.035;
+    background-image:
+      repeating-linear-gradient(0deg, transparent 0 3px, rgba(36, 27, 20, 0.18) 4px);
+    pointer-events: none;
   }
 
   body.menu-open {
@@ -88,6 +100,11 @@
 
   main {
     flex: 1;
+  }
+
+  .admin-shell,
+  .admin-main {
+    min-height: 100vh;
   }
 
   .container {

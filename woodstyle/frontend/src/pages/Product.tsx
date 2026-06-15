@@ -1,8 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { motion } from 'motion/react'
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 
 import { api, imageFor } from '../api/client'
+import { galleryPathsFor } from '../api/images'
 import Icon from '../components/Icon'
 import ProductCard from '../components/ProductCard'
 import { Badge, EmptyState, Skeleton } from '../components/ui'
@@ -11,6 +13,9 @@ import { getTranslations } from '../i18n'
 import { useGuestStore, usePreferencesStore, useSessionStore } from '../store/app'
 import type { Product as ProductType } from '../types'
 import { formatMoney } from '../utils/format'
+import { useReducedMotion } from '../shared/motion/useReducedMotion'
+import { Modal } from '../shared/ui/Modal'
+import { useToast } from '../shared/ui/ToastProvider'
 
 export default function Product() {
   const { id = '' } = useParams()
@@ -26,6 +31,8 @@ export default function Product() {
   const [lightbox, setLightbox] = useState(false)
   const [added, setAdded] = useState(false)
   const queryClient = useQueryClient()
+  const toast = useToast()
+  const reducedMotion = useReducedMotion()
   const product = useQuery({ queryKey: ['product', id, locale, currency], queryFn: () => api.product(id, locale, currency) })
   const favorites = useQuery({
     queryKey: ['favorites', locale, currency],
@@ -37,17 +44,29 @@ export default function Product() {
     queryFn: () => api.products({ locale, currency, category: product.data?.category_slug, page_size: 4 }),
     enabled: Boolean(product.data?.category_slug),
   })
+  const favoriteSelected = token
+    ? Boolean(favorites.data?.some((value) => value.id === Number(id)))
+    : guestFavorites.includes(Number(id))
   const cartMutation = useMutation({
     mutationFn: (item: ProductType) => api.addCart(item.id, quantity, locale, currency),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cart'] })
       setAdded(true)
+      toast.push(translations.common.addedToCart, 'success')
       window.setTimeout(() => setAdded(false), 1600)
     },
+    onError: (error) => toast.push(error.message, 'error'),
   })
   const favoriteMutation = useMutation({
     mutationFn: (item: ProductType) => favorites.data?.some((favorite) => favorite.id === item.id) ? api.deleteFavorite(item.id) : api.addFavorite(item.id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['favorites'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['favorites'] })
+      toast.push(
+        favoriteSelected ? 'Removed from favorites' : 'Added to favorites',
+        'success',
+      )
+    },
+    onError: (error) => toast.push(error.message, 'error'),
   })
 
   useDocumentMeta(
@@ -60,14 +79,20 @@ export default function Product() {
     return <div className="container commerce-page"><EmptyState icon="box" title={copy.notFound} action={translations.common.viewCatalog} /></div>
   }
   const item = product.data
-  const favorite = token ? Boolean(favorites.data?.some((value) => value.id === item.id)) : guestFavorites.includes(item.id)
-  const gallery = item.images.length ? item.images : [{ id: 0, path: item.image, alt: item.name }]
+  const favorite = favoriteSelected
+  const localGallery = galleryPathsFor(item.image)
+  const gallery = localGallery.length
+    ? localGallery.map((path, index) => ({ id: -(index + 1), path, alt: item.name }))
+    : item.images.length
+      ? item.images
+      : [{ id: 0, path: item.image, alt: item.name }]
   const image = gallery[Math.min(activeImage, gallery.length - 1)]
   const addToCart = () => {
     if (token) cartMutation.mutate(item)
     else {
       addGuestCart(item.id, quantity)
       setAdded(true)
+      toast.push(translations.common.addedToCart, 'success')
       window.setTimeout(() => setAdded(false), 1600)
     }
   }
@@ -88,7 +113,11 @@ export default function Product() {
             ))}
           </div>
           <button className="gallery-main" onClick={() => setLightbox(true)} aria-label={copy.openGallery}>
-            <img src={imageFor(image.path)} alt={image.alt || item.name} />
+            <motion.img
+              layoutId={reducedMotion ? undefined : `product-image-${item.id}`}
+              src={imageFor(image.path)}
+              alt={image.alt || item.name}
+            />
             <span><Icon name="eye" />{copy.viewLarger}</span>
           </button>
         </div>
@@ -149,17 +178,14 @@ export default function Product() {
         </div>
       </section>
 
-      {lightbox && (
-        <div className="lightbox" role="dialog" aria-modal="true">
-          <button className="lightbox-close" onClick={() => setLightbox(false)}><Icon name="close" /></button>
-          <img src={imageFor(image.path)} alt={image.alt || item.name} />
+      <Modal open={lightbox} onClose={() => setLightbox(false)} title={item.name} className="gallery-modal">
+          <img className="gallery-modal-image" src={imageFor(image.path)} alt={image.alt || item.name} />
           <div className="lightbox-nav">
             <button onClick={() => setActiveImage((activeImage - 1 + gallery.length) % gallery.length)}>{translations.common.previous}</button>
             <span>{activeImage + 1} / {gallery.length}</span>
             <button onClick={() => setActiveImage((activeImage + 1) % gallery.length)}>{translations.common.next}</button>
           </div>
-        </div>
-      )}
+      </Modal>
     </div>
   )
 }

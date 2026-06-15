@@ -1,6 +1,7 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { createJSONStorage, persist } from 'zustand/middleware'
 
+import { authStorage } from '../auth/authStorage'
 import { isLocale } from '../i18n/config'
 import type { Locale, User } from '../types'
 
@@ -41,8 +42,10 @@ interface SessionState {
   accessToken: string
   refreshToken: string
   user: User | null
+  ready: boolean
   setTokens: (accessToken: string, refreshToken: string) => void
   setUser: (user: User | null) => void
+  markReady: () => void
   logout: () => void
 }
 
@@ -52,11 +55,21 @@ export const useSessionStore = create<SessionState>()(
       accessToken: '',
       refreshToken: '',
       user: null,
+      ready: false,
       setTokens: (accessToken, refreshToken) => set({ accessToken, refreshToken }),
       setUser: (user) => set({ user }),
-      logout: () => set({ accessToken: '', refreshToken: '', user: null }),
+      markReady: () => set({ ready: true }),
+      logout: () => set({ accessToken: '', refreshToken: '', user: null, ready: true }),
     }),
-    { name: 'woodstyle-session' },
+    {
+      name: 'woodstyle-session',
+      storage: createJSONStorage(() => authStorage),
+      partialize: ({ accessToken, refreshToken, user }) => ({
+        accessToken,
+        refreshToken,
+        user,
+      }),
+    },
   ),
 )
 

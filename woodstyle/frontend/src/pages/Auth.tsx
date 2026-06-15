@@ -10,13 +10,24 @@ import Icon from '../components/Icon'
 import { Button, Field } from '../components/ui'
 import { useDocumentMeta } from '../hooks/useDocumentMeta'
 import { getTranslations } from '../i18n'
+import { useToast } from '../shared/ui/ToastProvider'
 import { useGuestStore, usePreferencesStore, useSessionStore } from '../store/app'
 
 const schema = z.object({
   email: z.email(),
-  password: z.string().min(8),
+  password: z.string().min(8).max(128),
   first_name: z.string().optional(),
   last_name: z.string().optional(),
+}).superRefine((value, context) => {
+  const localPart = value.email.split('@')[0]?.toLowerCase()
+  const password = value.password.toLowerCase()
+  if (password === value.email.toLowerCase() || password === localPart) {
+    context.addIssue({
+      code: 'custom',
+      path: ['password'],
+      message: 'Password must not match email',
+    })
+  }
 })
 type FormValues = z.infer<typeof schema>
 
@@ -30,6 +41,7 @@ export default function Auth() {
   const copy = translations.auth
   const { setTokens, setUser } = useSessionStore()
   const { cart, favorites, clearCart, clearFavorites } = useGuestStore()
+  const toast = useToast()
   const { register, handleSubmit, watch, formState: { errors, isSubmitting } } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: { email: '', password: '', first_name: '', last_name: '' },
@@ -59,9 +71,12 @@ export default function Auth() {
       for (const productId of favorites) await api.addFavorite(productId)
       clearCart()
       clearFavorites()
+      toast.push(mode === 'login' ? copy.titleLogin : copy.titleRegister, 'success')
       navigate(user.role === 'admin' ? '/admin' : '/profile')
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : copy.failure)
+      const failure = reason instanceof Error ? reason.message : copy.failure
+      setError(failure)
+      toast.push(failure, 'error')
     }
   }
 

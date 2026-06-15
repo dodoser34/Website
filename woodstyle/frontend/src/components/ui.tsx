@@ -6,6 +6,7 @@ import type {
   SelectHTMLAttributes,
   TextareaHTMLAttributes,
 } from 'react'
+import { useId } from 'react'
 import { Link } from 'react-router-dom'
 
 import Icon from './Icon'
@@ -46,11 +47,19 @@ export function Field({
   hint?: string
   error?: string
 }) {
+  const generatedId = useId()
+  const inputId = props.id || generatedId
+  const helpId = `${inputId}-help`
   return (
     <label className={`field ${error ? 'field-error' : ''} ${className}`}>
       <span className="field-label">{label}</span>
-      <input aria-invalid={Boolean(error)} {...props} />
-      {(error || hint) && <small>{error || hint}</small>}
+      <input
+        aria-invalid={Boolean(error)}
+        aria-describedby={error || hint ? helpId : undefined}
+        {...props}
+        id={inputId}
+      />
+      {(error || hint) && <small id={helpId}>{error || hint}</small>}
     </label>
   )
 }
@@ -67,14 +76,23 @@ export function SelectField({
     hint?: string
   }
 >) {
+  const generatedId = useId()
+  const inputId = props.id || generatedId
+  const helpId = `${inputId}-help`
   return (
     <label className={`field ${className}`}>
       <span className="field-label">{label}</span>
       <span className="select-shell">
-        <select {...props}>{children}</select>
+        <select
+          {...props}
+          id={inputId}
+          aria-describedby={hint ? helpId : undefined}
+        >
+          {children}
+        </select>
         <Icon name="chevron" size={16} />
       </span>
-      {hint && <small>{hint}</small>}
+      {hint && <small id={helpId}>{hint}</small>}
     </label>
   )
 }
@@ -90,11 +108,19 @@ export function TextareaField({
   hint?: string
   error?: string
 }) {
+  const generatedId = useId()
+  const inputId = props.id || generatedId
+  const helpId = `${inputId}-help`
   return (
     <label className={`field ${error ? 'field-error' : ''} ${className}`}>
       <span className="field-label">{label}</span>
-      <textarea aria-invalid={Boolean(error)} {...props} />
-      {(error || hint) && <small>{error || hint}</small>}
+      <textarea
+        aria-invalid={Boolean(error)}
+        aria-describedby={error || hint ? helpId : undefined}
+        {...props}
+        id={inputId}
+      />
+      {(error || hint) && <small id={helpId}>{error || hint}</small>}
     </label>
   )
 }

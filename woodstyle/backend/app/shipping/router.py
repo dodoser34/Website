@@ -1,9 +1,11 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
+from app.core.config import RATE_LIMIT_CHECKOUT
 from app.core.dependencies import get_current_user
+from app.core.rate_limit import enforce_rate_limit
 from app.models import Currency, ShippingZone, User
 from app.schemas import CheckoutIn
 from app.services.catalog import convert_usd_cents, get_currency, normalize_locale
@@ -69,8 +71,10 @@ def shipping_options(
 @router.post("/order", status_code=201)
 def checkout(
     payload: CheckoutIn,
+    request: Request,
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    enforce_rate_limit(request, "checkout-order", RATE_LIMIT_CHECKOUT)
     currency: Currency = get_currency(db, payload.currency_code)
     return serialize_order(create_order(db, user, payload, currency))

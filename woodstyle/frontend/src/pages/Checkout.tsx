@@ -12,7 +12,9 @@ import { countries } from '../config/showroom'
 import { useDocumentMeta } from '../hooks/useDocumentMeta'
 import { getTranslations } from '../i18n'
 import { usePreferencesStore, useSessionStore } from '../store/app'
-import type { Address } from '../types'
+import { Modal } from '../shared/ui/Modal'
+import { useToast } from '../shared/ui/ToastProvider'
+import type { Address, Order } from '../types'
 import { formatMoney } from '../utils/format'
 
 const checkoutSchema = z.object({
@@ -39,8 +41,10 @@ export default function Checkout() {
   const [country, setCountry] = useState('US')
   const [shippingId, setShippingId] = useState<number | null>(null)
   const [error, setError] = useState('')
+  const [completedOrder, setCompletedOrder] = useState<Order | null>(null)
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+  const toast = useToast()
   useDocumentMeta(copy.title, copy.secure, locale)
   const cart = useQuery({ queryKey: ['cart', locale, currency], queryFn: () => api.cart(locale, currency) })
   const shipping = useQuery({
@@ -86,12 +90,24 @@ export default function Checkout() {
     }
     try {
       const order = await api.createOrder({ shipping_zone_id: shippingId, currency_code: currency, address })
-      const paid = await api.pay(order.id, values.card_number, values.cardholder)
+      const paid = await api.pay(
+        order.id,
+        values.card_number,
+        values.cardholder,
+        crypto.randomUUID(),
+      )
       await queryClient.invalidateQueries({ queryKey: ['cart'] })
-      if (paid.status === 'paid') navigate('/orders')
-      else setError(copy.cardDeclined)
+      if (paid.status === 'paid') {
+        setCompletedOrder(paid)
+        toast.push(`Order #${paid.id} created`, 'success')
+      } else {
+        setError(copy.cardDeclined)
+        toast.push(copy.cardDeclined, 'error')
+      }
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : copy.failure)
+      const failure = reason instanceof Error ? reason.message : copy.failure
+      setError(failure)
+      toast.push(failure, 'error')
     }
   }
 
@@ -184,10 +200,20 @@ export default function Checkout() {
           <div><span>{translations.common.shipping}</span><strong>{formatMoney(selectedShipping?.price_minor || 0, currency, cart.data?.currency_digits || 2, locale)}</strong></div>
           <div className="summary-total"><span>{translations.common.total}</span><strong>{formatMoney(totalMinor, currency, cart.data?.currency_digits || 2, locale)}</strong></div>
           {error && <p className="form-message error">{error}</p>}
-          <button className="button button-primary button-wide" disabled={isSubmitting || !shippingId}>{isSubmitting ? copy.processing : copy.pay}<Icon name="shield" /></button>
+          <button className={`button button-primary button-wide ${isSubmitting ? 'is-loading' : ''}`} disabled={isSubmitting || !shippingId}>{isSubmitting ? copy.processing : copy.pay}<Icon name="shield" /></button>
           <small className="summary-footnote"><Icon name="shield" />{copy.secure}</small>
         </aside>
       </form>
+      <Modal
+        open={Boolean(completedOrder)}
+        onClose={() => navigate('/orders')}
+        title="Payment approved"
+        className="checkout-result-modal"
+        footer={<button className="button button-primary" onClick={() => navigate('/orders')}>View order <Icon name="arrow" /></button>}
+      >
+        <span className="success-seal"><Icon name="check" size={30} /></span>
+        <p>Your order <strong>#{completedOrder?.id}</strong> is confirmed. The fixed total and delivery details are available in your order history.</p>
+      </Modal>
     </section>
   )
 }

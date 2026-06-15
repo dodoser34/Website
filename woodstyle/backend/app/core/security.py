@@ -6,6 +6,8 @@ import os
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
+from argon2 import PasswordHasher
+from argon2.exceptions import InvalidHashError, VerificationError, VerifyMismatchError
 from fastapi import HTTPException, status
 
 from app.core.config import (
@@ -16,6 +18,13 @@ from app.core.config import (
 
 
 PASSWORD_ITERATIONS = 600_000
+password_hasher = PasswordHasher(
+    time_cost=3,
+    memory_cost=65536,
+    parallelism=4,
+    hash_len=32,
+    salt_len=16,
+)
 
 
 def _b64encode(value: bytes) -> str:
@@ -28,6 +37,10 @@ def _b64decode(value: str) -> bytes:
 
 
 def hash_password(password: str) -> str:
+    return password_hasher.hash(password)
+
+
+def hash_password_legacy(password: str) -> str:
     salt = os.urandom(16)
     digest = hashlib.pbkdf2_hmac(
         "sha256",
@@ -42,6 +55,15 @@ def hash_password(password: str) -> str:
 
 
 def verify_password(password: str, encoded: str) -> bool:
+    if encoded.startswith("$argon2"):
+        try:
+            return password_hasher.verify(encoded, password)
+        except (InvalidHashError, VerificationError, VerifyMismatchError):
+            return False
+    return verify_legacy_password(password, encoded)
+
+
+def verify_legacy_password(password: str, encoded: str) -> bool:
     try:
         algorithm, iterations, salt, expected = encoded.split("$", 3)
         if algorithm != "pbkdf2_sha256":
@@ -55,6 +77,19 @@ def verify_password(password: str, encoded: str) -> bool:
         return hmac.compare_digest(_b64encode(digest), expected)
     except (TypeError, ValueError):
         return False
+
+
+def password_needs_rehash(encoded: str) -> bool:
+    if not encoded.startswith("$argon2"):
+        return True
+    try:
+        return password_hasher.check_needs_rehash(encoded)
+    except InvalidHashError:
+        return True
+
+
+def hash_token(token: str) -> str:
+    return hashlib.sha256(token.encode("utf-8")).hexdigest()
 
 
 def create_token(
@@ -96,11 +131,16 @@ def create_access_token(user_id: int, role: str) -> str:
     )
 
 
-def create_refresh_token(user_id: int) -> str:
+def create_refresh_token(
+    user_id: int,
+    token_id: str,
+    family_id: str,
+) -> str:
     return create_token(
         user_id,
         "refresh",
         timedelta(days=REFRESH_TOKEN_DAYS),
+        {"jti": token_id, "family": family_id},
     )
 
 

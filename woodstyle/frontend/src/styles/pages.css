@@ -182,12 +182,23 @@
 
   .category-card {
     position: relative;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    box-shadow: var(--shadow-soft);
+    transition: transform 220ms ease, box-shadow 240ms ease;
+  }
+
+  .category-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-card);
   }
 
   .category-image {
     aspect-ratio: 0.95;
     overflow: hidden;
-    border-radius: var(--radius-sm);
+    border-radius: 0;
     background: var(--paper-deep);
   }
 
@@ -205,7 +216,7 @@
   .category-card > span {
     display: grid;
     gap: 5px;
-    padding: 14px 1px;
+    padding: 17px 18px 19px;
   }
 
   .category-card > span strong {
@@ -219,8 +230,8 @@
 
   .category-card > svg {
     position: absolute;
-    right: 5px;
-    bottom: 24px;
+    right: 18px;
+    bottom: 25px;
   }
 
   .editorial-split {
@@ -373,7 +384,9 @@
     padding: 25px;
     border: 1px solid var(--line);
     border-radius: var(--radius-sm);
-    background: rgba(255, 253, 250, 0.75);
+    background: rgba(255, 253, 250, 0.88);
+    box-shadow: var(--shadow-soft);
+    backdrop-filter: blur(16px);
   }
 
   .filters-title {
@@ -410,18 +423,12 @@
 
   .filter-option {
     display: grid;
-    grid-template-columns: auto 1fr auto;
+    grid-template-columns: 17px 1fr auto;
     align-items: center;
     gap: 10px;
     color: var(--ink-soft);
-    font-size: 10px;
+    font-size: 11px;
     cursor: pointer;
-  }
-
-  .filter-option input {
-    width: 15px;
-    height: 15px;
-    accent-color: var(--forest);
   }
 
   .filter-option small {
@@ -853,17 +860,20 @@
   }
 
   .lightbox-nav {
-    position: absolute;
-    bottom: 20px;
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 25px;
+    margin-top: 18px;
   }
 
   .lightbox-nav button {
-    border: 0;
-    color: #fff;
-    background: transparent;
+    min-height: 40px;
+    padding: 0 14px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-pill);
+    color: var(--ink);
+    background: var(--surface);
     font-size: 10px;
     cursor: pointer;
   }

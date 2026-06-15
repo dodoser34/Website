@@ -2,7 +2,14 @@ from datetime import datetime
 from decimal import Decimal
 from typing import TypeVar
 
-from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    EmailStr,
+    Field,
+    field_validator,
+    model_validator,
+)
 
 from app.core.config import SUPPORTED_LOCALES
 
@@ -38,6 +45,23 @@ class RegisterIn(BaseModel):
     locale: str = "en"
     currency_code: str = "USD"
 
+    @model_validator(mode="after")
+    def validate_password_policy(self):
+        normalized_email = str(self.email).lower()
+        local_part = normalized_email.split("@", 1)[0]
+        common = {
+            "password",
+            "password123",
+            "12345678",
+            "qwerty123",
+            "admin123",
+        }
+        if self.password.lower() in common:
+            raise ValueError("Password is too common")
+        if self.password.lower() in {normalized_email, local_part}:
+            raise ValueError("Password must not match email")
+        return self
+
 
 class LoginIn(BaseModel):
     email: EmailStr
@@ -45,7 +69,7 @@ class LoginIn(BaseModel):
 
 
 class RefreshIn(BaseModel):
-    refresh_token: str
+    refresh_token: str = ""
 
 
 class UserOut(BaseModel):
@@ -181,6 +205,7 @@ class CardPaymentIn(BaseModel):
     order_id: int
     card_number: str
     cardholder: str = Field(min_length=2, max_length=160)
+    idempotency_key: str | None = Field(default=None, max_length=100)
 
     @field_validator("card_number")
     @classmethod
@@ -215,6 +240,7 @@ class ContactIn(BaseModel):
     phone: str = Field(min_length=7, max_length=30)
     email: EmailStr
     message: str = Field(min_length=10, max_length=2000)
+    website: str = Field(default="", max_length=200)
 
 
 class LegacyInquiryIn(BaseModel):

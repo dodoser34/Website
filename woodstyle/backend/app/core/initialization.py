@@ -133,7 +133,23 @@ def _legacy_sqlite_upgrade() -> None:
                         "ALTER TABLE product_images "
                         f"ADD COLUMN {column_name} VARCHAR(200) "
                         "NOT NULL DEFAULT ''"
-                    )
+                        )
+
+        if "payments" in tables:
+            columns = {
+                column["name"]
+                for column in inspector.get_columns("payments")
+            }
+            if "idempotency_key" not in columns:
+                connection.exec_driver_sql(
+                    "ALTER TABLE payments "
+                    "ADD COLUMN idempotency_key VARCHAR(100)"
+                )
+                connection.exec_driver_sql(
+                    "CREATE UNIQUE INDEX IF NOT EXISTS "
+                    "ix_payments_idempotency_key "
+                    "ON payments (idempotency_key)"
+                )
 
         if "shipping_zones" in tables:
             columns = {
@@ -377,6 +393,13 @@ def initialize_database() -> None:
             connection.execute(
                 text(
                     "INSERT INTO alembic_version (version_num) "
-                    "VALUES ('20260612_01')"
+                    "VALUES ('20260615_01')"
+                )
+            )
+        elif current != "20260615_01":
+            connection.execute(
+                text(
+                    "UPDATE alembic_version "
+                    "SET version_num='20260615_01'"
                 )
             )

@@ -23,6 +23,17 @@
     }
   }
 
+  @keyframes button-shimmer {
+    from { transform: translateX(-120%); }
+    to { transform: translateX(120%); }
+  }
+
+  @keyframes success-pop {
+    0% { transform: scale(0.72); opacity: 0; }
+    70% { transform: scale(1.08); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
   .reveal {
     animation: reveal-up 650ms both cubic-bezier(0.22, 1, 0.36, 1);
   }
@@ -54,6 +65,48 @@
 
   .toast {
     animation: toast-in 250ms ease both;
+  }
+
+  .button,
+  .icon-button,
+  .favorite-button,
+  .card-cart-button,
+  .quantity-control button {
+    transition:
+      transform 160ms cubic-bezier(0.22, 1, 0.36, 1),
+      color 180ms ease,
+      background-color 180ms ease,
+      border-color 180ms ease,
+      box-shadow 220ms ease;
+  }
+
+  .button:active,
+  .icon-button:active,
+  .favorite-button:active,
+  .card-cart-button:active,
+  .quantity-control button:active {
+    transform: scale(0.98);
+  }
+
+  .button.is-loading {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .button.is-loading::after {
+    position: absolute;
+    inset: 0;
+    content: '';
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.2), transparent);
+    animation: button-shimmer 1.1s infinite;
+  }
+
+  .favorite-button.is-favorite svg {
+    animation: success-pop 300ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .success-seal {
+    animation: success-pop 420ms cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   @media (prefers-reduced-motion: reduce) {

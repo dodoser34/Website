@@ -5,8 +5,33 @@ import { getTranslations } from '../../i18n'
 import type { AdminDashboard, AdminProduct, Locale } from '../../types'
 import { formatUsd } from '../../utils/format'
 import { fallbackLocaleName } from './model'
+import { useReducedMotion } from '../../shared/motion/useReducedMotion'
 
 type IconName = Parameters<typeof Icon>[0]['name']
+
+function AnimatedValue({
+  value,
+  format,
+}: {
+  value: number
+  format: (value: number) => string
+}) {
+  const reducedMotion = useReducedMotion()
+  const [display, setDisplay] = useState(reducedMotion ? value : 0)
+  useEffect(() => {
+    if (reducedMotion) {
+      setDisplay(value)
+      return
+    }
+    const controls = animate(0, value, {
+      duration: 0.75,
+      ease: [0.22, 1, 0.36, 1],
+      onUpdate: (current) => setDisplay(current),
+    })
+    return () => controls.stop()
+  }, [reducedMotion, value])
+  return <>{format(Math.round(display))}</>
+}
 
 export function DashboardPanel({
   dashboard,
@@ -28,14 +53,16 @@ export function DashboardPanel({
     <>
       <div className="stats-grid">
         {[
-          [copy.revenue, formatUsd(revenue, locale), 'sparkles', copy.allSales],
-          [copy.orders, orderCount, 'box', `${Object.values(statusCounts).reduce((sum, value) => sum + value, 0)} ${copy.total}`],
-          [copy.averageOrder, formatUsd(orderCount ? Math.round(revenue / orderCount) : 0, locale), 'currency', copy.allOrders],
-          [copy.customers, Number(dashboard?.users || 0), 'user', `${Number(dashboard?.products || 0)} ${copy.products}`],
-        ].map(([label, value, icon, note]) => (
+          [copy.revenue, revenue, 'sparkles', copy.allSales, (value: number) => formatUsd(value, locale)],
+          [copy.orders, orderCount, 'box', `${Object.values(statusCounts).reduce((sum, value) => sum + value, 0)} ${copy.total}`, String],
+          [copy.averageOrder, orderCount ? Math.round(revenue / orderCount) : 0, 'currency', copy.allOrders, (value: number) => formatUsd(value, locale)],
+          [copy.customers, Number(dashboard?.users || 0), 'user', `${Number(dashboard?.products || 0)} ${copy.products}`, String],
+        ].map(([label, value, icon, note, formatter]) => (
           <article key={String(label)}>
             <span className="stat-icon"><Icon name={icon as IconName} /></span>
-            <small>{label}</small><strong>{value}</strong><em>{note}</em>
+            <small>{label as string}</small>
+            <strong><AnimatedValue value={value as number} format={formatter as (value: number) => string} /></strong>
+            <em>{note as string}</em>
           </article>
         ))}
       </div>
@@ -79,3 +106,5 @@ export function DashboardPanel({
     </>
   )
 }
+import { animate } from 'motion/react'
+import { useEffect, useState } from 'react'

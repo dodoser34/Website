@@ -20,6 +20,16 @@ export const accountApi = {
       method: 'POST',
       body: JSON.stringify(payload),
     }),
+  refresh: (refreshToken = '') =>
+    request<{ access_token: string; refresh_token: string }>('/auth/refresh', {
+      method: 'POST',
+      body: JSON.stringify(refreshToken ? { refresh_token: refreshToken } : {}),
+    }),
+  logout: (refreshToken = '') =>
+    request<{ message: string }>('/auth/logout', {
+      method: 'POST',
+      body: JSON.stringify(refreshToken ? { refresh_token: refreshToken } : {}),
+    }),
   me: () => request<User>('/me', { auth: true }),
   updateProfile: (payload: Partial<User>) =>
     request<User>('/me', {
@@ -95,7 +105,12 @@ export const accountApi = {
       auth: true,
       body: JSON.stringify(payload),
     }),
-  pay: (orderId: number, cardNumber: string, cardholder: string) =>
+  pay: (
+    orderId: number,
+    cardNumber: string,
+    cardholder: string,
+    idempotencyKey: string,
+  ) =>
     request<Order>('/checkout/pay', {
       method: 'POST',
       auth: true,
@@ -103,6 +118,7 @@ export const accountApi = {
         order_id: orderId,
         card_number: cardNumber,
         cardholder,
+        idempotency_key: idempotencyKey,
       }),
     }),
   orders: () => request<Order[]>('/me/orders', { auth: true }),
