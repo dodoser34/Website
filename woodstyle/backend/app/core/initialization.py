@@ -336,6 +336,8 @@ def _seed_users_and_shipping(db) -> None:
             ]
         )
 
+    local_country_codes = "US,CA,GB,DE,FR,ES,IT,KZ"
+
     if db.scalar(select(ShippingZone.id).limit(1)) is None:
         regional = SHIPPING_ZONE_NAMES["local"]
         international = SHIPPING_ZONE_NAMES["international"]
@@ -343,7 +345,7 @@ def _seed_users_and_shipping(db) -> None:
             [
                 ShippingZone(
                     **{f"name_{locale}": name for locale, name in regional.items()},
-                    country_codes="US,CA,GB,DE,FR,ES,IT",
+                    country_codes=local_country_codes,
                     price_usd_cents=2500,
                     free_from_usd_cents=100000,
                     eta_min_days=3,
@@ -371,6 +373,14 @@ def _seed_users_and_shipping(db) -> None:
                 field = f"name_{locale}"
                 if not getattr(zone, field):
                     setattr(zone, field, name)
+            if index == 0:
+                codes = [
+                    code.strip().upper()
+                    for code in zone.country_codes.split(",")
+                    if code.strip()
+                ]
+                if "*" not in codes and "KZ" not in codes:
+                    zone.country_codes = ",".join([*codes, "KZ"])
 
 
 def initialize_database() -> None:

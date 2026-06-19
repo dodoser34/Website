@@ -2,8 +2,8 @@ import { imageFor } from '../../api/client'
 import Icon from '../../components/Icon'
 import { Badge } from '../../components/ui'
 import { getTranslations } from '../../i18n'
-import type { AdminDashboard, AdminProduct, Locale } from '../../types'
-import { formatUsd } from '../../utils/format'
+import type { AdminDashboard, AdminProduct, Currency, Locale } from '../../types'
+import { formatMoney } from '../../utils/format'
 import { fallbackLocaleName } from './model'
 import { useReducedMotion } from '../../shared/motion/useReducedMotion'
 
@@ -37,10 +37,12 @@ export function DashboardPanel({
   dashboard,
   products,
   locale,
+  currency,
 }: {
   dashboard?: AdminDashboard
   products: AdminProduct[]
   locale: Locale
+  currency: Currency | undefined
 }) {
   const translations = getTranslations(locale)
   const copy = translations.admin.dashboard
@@ -48,17 +50,24 @@ export function DashboardPanel({
   const maxStatus = Math.max(1, ...Object.values(statusCounts))
   const revenue = Number(dashboard?.revenue_usd_cents || 0)
   const orderCount = Number(dashboard?.orders || 0)
+  const currencyCode = currency?.code || 'USD'
+  const currencyDigits = currency?.decimal_digits ?? 2
+  const rateFromUsd = Number(currency?.rate_from_usd || 1)
+  const toCurrencyMinor = (usdCents: number) =>
+    Math.round(usdCents * rateFromUsd * (10 ** currencyDigits) / 100)
+  const formatSelectedCurrency = (usdCents: number) =>
+    formatMoney(toCurrencyMinor(usdCents), currencyCode, currencyDigits, locale)
 
   return (
     <>
       <div className="stats-grid">
         {[
-          [copy.revenue, revenue, 'sparkles', copy.allSales, (value: number) => formatUsd(value, locale)],
+          [copy.revenue, revenue, 'sparkles', copy.allSales, formatSelectedCurrency],
           [copy.orders, orderCount, 'box', `${Object.values(statusCounts).reduce((sum, value) => sum + value, 0)} ${copy.total}`, String],
-          [copy.averageOrder, orderCount ? Math.round(revenue / orderCount) : 0, 'currency', copy.allOrders, (value: number) => formatUsd(value, locale)],
+          [copy.averageOrder, orderCount ? Math.round(revenue / orderCount) : 0, 'currency', copy.allOrders, formatSelectedCurrency],
           [copy.customers, Number(dashboard?.users || 0), 'user', `${Number(dashboard?.products || 0)} ${copy.products}`, String],
-        ].map(([label, value, icon, note, formatter]) => (
-          <article key={String(label)}>
+        ].map(([label, value, icon, note, formatter], index) => (
+          <article className={`reveal reveal-delay-${Math.min(index, 3)}`} key={String(label)}>
             <span className="stat-icon"><Icon name={icon as IconName} /></span>
             <small>{label as string}</small>
             <strong><AnimatedValue value={value as number} format={formatter as (value: number) => string} /></strong>
@@ -67,7 +76,7 @@ export function DashboardPanel({
         ))}
       </div>
       <div className="dashboard-grid">
-        <section className="admin-panel dashboard-chart">
+        <section className="admin-panel dashboard-chart reveal">
           <header>
             <div><small>{copy.storeHealth}</small><h2>{copy.orderDistribution}</h2></div>
             <Badge>{copy.allTime}</Badge>
@@ -84,7 +93,7 @@ export function DashboardPanel({
             )) : <p>{copy.noData}</p>}
           </div>
         </section>
-        <section className="admin-panel top-products">
+        <section className="admin-panel top-products reveal reveal-delay-1">
           <header><div><small>{copy.catalog}</small><h2>{copy.popularProducts}</h2></div></header>
           {products
             .slice()

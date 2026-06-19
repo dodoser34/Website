@@ -2,18 +2,17 @@ import type { CountryOption, Locale, ShowroomConfig } from '../types'
 import { getTranslations } from '../i18n'
 
 const defaultEmbed =
-  'https://www.google.com/maps?q=Kleine%20Budengasse%201-3%2C%2050667%20K%C3%B6ln%2C%20Germany&output=embed'
+  'https://www.google.com/maps?q=Astana%2C%20Kazakhstan&output=embed'
 
 export function showroom(locale: Locale): ShowroomConfig {
   const copy = getTranslations(locale).contacts
-  const country = countries.find(({ code }) => code === 'DE')?.name[locale] || 'Deutschland'
+  const country = countries.find(({ code }) => code === 'KZ')?.name[locale] || 'Kazakhstan'
   return {
     name: copy.officeName,
-    address: `Kleine Budengasse 1-3, 50667 Köln, ${country}`,
-    phone: '+49 221 555 0174',
+    address: `Astana, 010000, ${country}`,
+    phone: '+7 7172 55 01 74',
     email: 'info@woodstyle.com',
-    mapsUrl:
-      'https://www.google.com/maps/search/?api=1&query=Kleine+Budengasse+1-3+50667+K%C3%B6ln+Germany',
+    mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Astana+Kazakhstan',
     embedUrl: import.meta.env.VITE_GOOGLE_MAPS_EMBED_URL || defaultEmbed,
     hours: copy.hoursRows.map((row) => ({ ...row })),
   }

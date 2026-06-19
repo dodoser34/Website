@@ -52,12 +52,19 @@ export default function Cart() {
       })
   const subtotal = token ? serverCart.data?.subtotal_minor || 0 : lines.reduce((total, line) => total + line.line_minor, 0)
   const digits = token ? serverCart.data?.currency_digits || 2 : lines[0]?.product.currency_digits || 2
+  const pageTitle = {
+    en: 'Your Cart',
+    ru: 'Ваша корзина',
+    de: 'Ihr Warenkorb',
+    ja: 'ショッピングカート',
+    fr: 'Votre panier',
+  }[locale]
 
   return (
     <section className="container commerce-page">
       <div className="commerce-heading reveal">
         <span className="eyebrow"><span />{copy.eyebrow}</span>
-        <h1>{translations.common.cart}</h1>
+        <h1>{pageTitle}</h1>
         <p>{lines.length ? `${lines.reduce((sum, line) => sum + line.quantity, 0)} ${copy.ready}` : ''}</p>
       </div>
       {(token ? serverCart.isLoading : guestProducts.isLoading) ? (

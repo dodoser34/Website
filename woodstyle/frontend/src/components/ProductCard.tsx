@@ -79,9 +79,12 @@ export default function ProductCard({ product }: { product: Product }) {
   return (
     <motion.article
       className="product-card"
+      initial={reducedMotion ? false : { opacity: 0, y: 28, scale: 0.98 }}
+      whileInView={reducedMotion ? undefined : { opacity: 1, y: 0, scale: 1 }}
       whileHover={reducedMotion ? undefined : { y: -4 }}
       whileTap={reducedMotion ? undefined : { scale: 0.995 }}
-      transition={{ duration: 0.22 }}
+      viewport={{ once: true, margin: '-10% 0px -10% 0px' }}
+      transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
     >
       <div className="product-media">
         <Link className="product-image" to={`/product/${product.id}`}>

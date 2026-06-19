@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 
 import { showroom } from '../config/showroom'
+import { socialLinks } from '../config/socials'
 import { getTranslations } from '../i18n'
 import { usePreferencesStore } from '../store/app'
 import BrandMark from './BrandMark'
@@ -14,9 +15,15 @@ export default function Footer() {
     <footer className="site-footer">
       <div className="container footer-top">
         <div className="footer-intro">
-          <span className="brand-mark"><BrandMark size={32} /></span>
-          <strong className="footer-brand">WoodStyle</strong>
+          <span className="footer-wordmark"><BrandMark size={25} /><strong>WOODSTYLE</strong><small>INTERNATIONAL</small></span>
           <p>{copy.footer.description}</p>
+          <div className="footer-socials" aria-label="Social networks">
+            {socialLinks.map((social) => (
+              <a key={social.label} href={social.href} target="_blank" rel="noreferrer" aria-label={social.label}>
+                <Icon name={social.icon} size={15} />
+              </a>
+            ))}
+          </div>
         </div>
         <div className="footer-column">
           <strong>{copy.footer.collection}</strong>
@@ -38,7 +45,7 @@ export default function Footer() {
         </div>
       </div>
       <div className="container footer-bottom">
-        <span>© 2026 WoodStyle</span>
+        <span>© 2026 WoodStyle International</span>
         <span>{copy.footer.note}</span>
         <span>{copy.footer.languages}</span>
       </div>

@@ -8,6 +8,7 @@ import { Skeleton } from '../components/ui'
 import { getTranslations } from '../i18n'
 import { usePreferencesStore } from '../store/app'
 import { useSessionStore } from '../store/app'
+import { useScrollReveal } from '../shared/motion/useScrollReveal'
 import { AnimatedPage } from '../shared/ui/AnimatedPage'
 
 const About = lazy(() => import('../pages/About'))
@@ -51,6 +52,8 @@ export default function App() {
   const adminLayout = location.pathname.startsWith('/admin')
   const locale = usePreferencesStore((state) => state.locale)
   const copy = getTranslations(locale)
+  useScrollReveal(location.pathname)
+
   return (
     <div className={`app-shell ${adminLayout ? 'admin-shell' : ''}`}>
       <ScrollToTop />

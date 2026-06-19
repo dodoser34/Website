@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 
 import { api } from '../api/client'
+import { showroom } from '../config/showroom'
 import { localeOptions } from '../i18n/config'
 import { getTranslations } from '../i18n'
 import { useGuestStore, usePreferencesStore, useSessionStore } from '../store/app'
@@ -24,6 +25,7 @@ export default function Header() {
   const queryClient = useQueryClient()
   const toast = useToast()
   const copy = getTranslations(locale)
+  const office = showroom(locale)
   const currencies = useQuery({ queryKey: ['currencies'], queryFn: () => api.currencies() })
   const me = useQuery({ queryKey: ['me', accessToken], queryFn: api.me, enabled: Boolean(accessToken) })
   const cart = useQuery({
@@ -73,15 +75,18 @@ export default function Header() {
     <>
       <div className="announcement-bar">
         <div className="container">
-          <span>{copy.header.announcement}</span>
-          <Link to="/contacts">{copy.header.showroomVisit}<Icon name="arrow" size={15} /></Link>
+          <span><Icon name="truck" size={14} />{copy.header.announcement}</span>
+          <div className="announcement-values">
+            <span><Icon name="leaf" size={13} />{copy.home.services[3].title}</span>
+            <span><Icon name="clock" size={13} />{copy.home.services[0].title}</span>
+          </div>
         </div>
       </div>
       <header className="site-header">
         <div className="container header-inner">
           <Link className="brand" to="/">
-            <span className="brand-mark"><BrandMark size={32} /></span>
-            <span><strong>WoodStyle</strong><small>{copy.header.brandLine}</small></span>
+            <span className="brand-symbol"><BrandMark size={25} /></span>
+            <span><strong>WOODSTYLE</strong><small>INTERNATIONAL</small></span>
           </Link>
 
           <nav className={`main-nav ${open ? 'is-open' : ''}`} aria-label={copy.header.navigationLabel}>
@@ -89,15 +94,14 @@ export default function Header() {
               <span>{copy.header.menu}</span>
               <button onClick={() => setOpen(false)} aria-label={copy.header.closeMenu}><Icon name="close" /></button>
             </div>
-            <NavLink to="/" end>{copy.common.home}</NavLink>
             <NavLink to="/catalog">{copy.common.catalog}</NavLink>
             <NavLink to="/about">{copy.common.about}</NavLink>
             <NavLink to="/contacts">{copy.common.contacts}</NavLink>
             {user?.role === 'admin' && <NavLink to="/admin">{copy.common.admin}</NavLink>}
             <div className="mobile-nav-contact">
               <small>{copy.header.headquarters}</small>
-              <strong>Kleine Budengasse 1-3, Köln</strong>
-              <a href="tel:+492215550174">+49 221 555 0174</a>
+              <strong>{office.address}</strong>
+              <a href={`tel:${office.phone.replace(/\s/g, '')}`}>{office.phone}</a>
             </div>
           </nav>
 
@@ -116,14 +120,14 @@ export default function Header() {
               </select>
               <Icon name="chevron" size={13} />
             </label>
-            <Link className="icon-button desktop-action" to="/catalog" aria-label={copy.common.search}><Icon name="search" /></Link>
+            <Link className="icon-button desktop-action mobile-search-action" to="/catalog" aria-label={copy.common.search}><Icon name="search" /></Link>
             <Link className="icon-button desktop-action counted-action" to="/favorites" aria-label={copy.common.favorites}>
               <Icon name="heart" />
               <AnimatePresence mode="popLayout">
                 {favoriteCount > 0 && <motion.span key={favoriteCount} className="action-badge" initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.6, opacity: 0 }}>{favoriteCount}</motion.span>}
               </AnimatePresence>
             </Link>
-            <Link className="icon-button counted-action" to="/cart" aria-label={copy.common.cart}>
+            <Link className="icon-button counted-action mobile-cart-action" to="/cart" aria-label={copy.common.cart}>
               <Icon name="cart" />
               <AnimatePresence mode="popLayout">
                 {cartCount > 0 && <motion.span key={cartCount} className="action-badge" initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.6, opacity: 0 }}>{cartCount}</motion.span>}
@@ -155,8 +159,13 @@ export default function Header() {
                 )}
                 </AnimatePresence>
               </div>
-            ) : <Link className="header-login" to="/auth">{copy.common.login}</Link>}
-            <button className="icon-button menu-button" onClick={() => setOpen((value) => !value)} aria-expanded={open} aria-label={copy.header.toggleMenu}>
+            ) : (
+              <Link className="header-login" to="/auth" aria-label={copy.common.login}>
+                <Icon name="user" />
+                <span>{copy.common.login}</span>
+              </Link>
+            )}
+            <button className="icon-button menu-button mobile-menu-action" onClick={() => setOpen((value) => !value)} aria-expanded={open} aria-label={copy.header.toggleMenu}>
               <Icon name={open ? 'close' : 'menu'} />
             </button>
           </div>

@@ -21,9 +21,9 @@
     --warning: #936c38;
     --serif: 'Prata', 'Yu Mincho', 'Hiragino Mincho ProN', Georgia, serif;
     --sans: 'Manrope', 'Yu Gothic', 'Hiragino Kaku Gothic ProN', Meiryo, 'Segoe UI', sans-serif;
-    --shadow-sm: 0 8px 25px rgba(46, 38, 27, 0.07);
-    --shadow-md: 0 20px 60px rgba(46, 38, 27, 0.12);
-    --shadow-lg: 0 30px 90px rgba(32, 30, 24, 0.18);
+    --shadow-sm: 0 8px 22px rgba(38, 28, 18, 0.06);
+    --shadow-md: 0 16px 42px rgba(38, 28, 18, 0.1);
+    --shadow-lg: 0 24px 70px rgba(38, 28, 18, 0.14);
     --radius-xs: 8px;
     --radius-sm: 12px;
     --radius-md: 20px;
@@ -43,9 +43,9 @@
     --color-danger: #a33a2f;
     --color-success: #3f7d4b;
     --color-warning: #b7791f;
-    --shadow-soft: 0 14px 40px rgba(38, 28, 18, 0.08);
-    --shadow-card: 0 18px 60px rgba(38, 28, 18, 0.12);
-    --shadow-modal: 0 30px 90px rgba(20, 14, 8, 0.24);
+    --shadow-soft: var(--shadow-sm);
+    --shadow-card: var(--shadow-md);
+    --shadow-modal: var(--shadow-lg);
     font-family: var(--sans);
     color: var(--ink);
     background: var(--paper);

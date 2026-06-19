@@ -1,6 +1,7 @@
-import atelierImage from '../assets/images/atelier-craft-v1.webp'
-import materialImage from '../assets/images/material-oak-detail-v1.webp'
-import aboutImage from '../assets/images/about-interior-v2.jpg'
+import aboutImage from '../assets/images/site/about-story-v3.webp'
+import atelierImage from '../assets/images/site/atelier-craft-v2.webp'
+import editorialImage from '../assets/images/site/editorial-dining-v2.webp'
+import materialImage from '../assets/images/site/material-walnut-detail-v2.webp'
 import Icon from '../components/Icon'
 import { PageHero } from '../components/ui'
 import { useDocumentMeta } from '../hooks/useDocumentMeta'
@@ -10,13 +11,27 @@ import { usePreferencesStore } from '../store/app'
 export default function About() {
   const locale = usePreferencesStore((state) => state.locale)
   const copy = getTranslations(locale).about
+  const processLabels = {
+    en: ['Source', 'Craft', 'Finish', 'Inspect', 'Deliver'],
+    ru: ['Отбор', 'Работа', 'Отделка', 'Контроль', 'Доставка'],
+    de: ['Auswahl', 'Fertigung', 'Finish', 'Prüfung', 'Lieferung'],
+    ja: ['選定', '製作', '仕上げ', '検品', '配送'],
+    fr: ['Sélection', 'Fabrication', 'Finition', 'Contrôle', 'Livraison'],
+  }[locale]
+  const processTitle = {
+    en: 'Thoughtful at every step.',
+    ru: 'Продумано на каждом этапе.',
+    de: 'Durchdacht in jedem Schritt.',
+    ja: 'すべての工程にこだわりを。',
+    fr: 'Chaque étape est pensée.',
+  }[locale]
   useDocumentMeta(copy.title, copy.lead, locale)
 
   return (
     <div className="about-page">
-      <PageHero eyebrow={copy.eyebrow} title={copy.title} lead={copy.lead} />
-      <section className="container about-editorial">
-        <div className="about-editorial-image reveal"><img src={aboutImage} alt="" /></div>
+      <PageHero eyebrow={copy.eyebrow} title={copy.title} lead={copy.lead} image={aboutImage} imageAlt="" className="about-page-hero" />
+      <section className="container about-editorial" id="story">
+        <div className="about-editorial-image reveal"><img src={editorialImage} alt="" /></div>
         <div className="about-editorial-copy reveal reveal-delay-1">
           <span className="section-index">01</span>
           <span className="eyebrow"><span />{copy.philosophy}</span>
@@ -26,7 +41,7 @@ export default function About() {
         </div>
       </section>
 
-      <section className="about-craft">
+      <section className="about-craft" id="craft">
         <div className="container about-craft-grid">
           <div className="about-craft-copy reveal">
             <span className="section-index">02</span>
@@ -54,7 +69,23 @@ export default function About() {
         </div>
       </section>
 
-      <section className="container material-story">
+      <section className="container craft-process reveal">
+        <div className="craft-process-heading">
+          <span className="eyebrow"><span />WoodStyle</span>
+          <h2>{processTitle}</h2>
+        </div>
+        <div className="craft-process-steps">
+          {processLabels.map((label, index) => (
+            <article key={label}>
+              <span>{index + 1}</span>
+              <Icon name={(['leaf', 'sparkles', 'shield', 'check', 'truck'] as const)[index]} />
+              <strong>{label}</strong>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="container material-story" id="materials">
         <div className="material-story-image reveal"><img src={materialImage} alt="" loading="lazy" /></div>
         <div className="material-story-copy reveal reveal-delay-1">
           <span className="eyebrow"><span />{copy.paletteEyebrow}</span>

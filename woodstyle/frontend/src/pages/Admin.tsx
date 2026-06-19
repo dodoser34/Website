@@ -32,7 +32,7 @@ import { useToast } from '../shared/ui/ToastProvider'
 type IconName = Parameters<typeof Icon>[0]['name']
 
 export default function Admin() {
-  const locale = usePreferencesStore((state) => state.locale)
+  const { locale, currency } = usePreferencesStore()
   const currentUser = useSessionStore((state) => state.user)
   const translations = getTranslations(locale)
   const copy = translations.admin
@@ -64,6 +64,7 @@ export default function Admin() {
   const messages = messagesQuery.data || []
   const shipping = shippingQuery.data || []
   const query = search.trim().toLowerCase()
+  const selectedCurrency = (currenciesQuery.data || []).find((item) => item.code === currency)
 
   const saveProduct = useMutation({
     mutationFn: () => api.admin.saveProduct({
@@ -203,7 +204,7 @@ export default function Admin() {
         </header>
         {tab === 'dashboard' && (dashboard.isLoading
           ? <div className="stats-grid">{[0, 1, 2, 3].map((item) => <article key={item}><Skeleton /><Skeleton /><Skeleton /></article>)}</div>
-          : <DashboardPanel dashboard={dashboard.data} products={products} locale={locale} />)}
+          : <DashboardPanel dashboard={dashboard.data} products={products} locale={locale} currency={selectedCurrency} />)}
 
         {tab === 'products' && (
           <>

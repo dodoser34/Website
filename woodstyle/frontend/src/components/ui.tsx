@@ -16,21 +16,28 @@ export function PageHero({
   title,
   lead,
   aside,
+  image,
+  imageAlt = '',
+  className = '',
 }: {
   eyebrow: string
   title: string
   lead?: string
   aside?: ReactNode
+  image?: string
+  imageAlt?: string
+  className?: string
 }) {
   return (
-    <section className="page-hero reveal">
+    <section className={`page-hero ${image ? 'page-hero-image' : ''} ${className} reveal`}>
       <div className="container page-hero-inner">
-        <div>
+        <div className="page-hero-copy">
           <span className="eyebrow"><span />{eyebrow}</span>
           <h1>{title}</h1>
           {lead && <p>{lead}</p>}
+          {aside}
         </div>
-        {aside}
+        {image && <div className="page-hero-media"><img src={image} alt={imageAlt} /></div>}
       </div>
     </section>
   )

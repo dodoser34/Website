@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
 import { api } from '../api/client'
+import catalogHero from '../assets/images/site/catalog-hero-v1.webp'
 import Icon from '../components/Icon'
 import ProductCard from '../components/ProductCard'
 import { EmptyState, PageHero, Skeleton } from '../components/ui'
@@ -88,6 +89,9 @@ export default function Catalog() {
         eyebrow={copy.eyebrow}
         title={copy.title}
         lead={copy.lead}
+        image={catalogHero}
+        imageAlt=""
+        className="catalog-page-hero"
         aside={
           <label className="catalog-search">
             <Icon name="search" />

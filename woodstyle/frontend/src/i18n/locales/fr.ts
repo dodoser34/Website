@@ -28,7 +28,7 @@ const fr = {
     cartDescription: 'Vos pièces WoodStyle sélectionnées.',
   },
   header: {
-    announcement: 'Consultation intérieure offerte depuis notre studio de Cologne',
+    announcement: 'Consultation intérieure offerte depuis notre studio d’Astana',
     brandLine: 'Des meubles façonnés par la nature',
     showroomVisit: 'Réserver une visite du showroom',
     menu: 'Menu', navigationLabel: 'Navigation principale', closeMenu: 'Fermer le menu',
@@ -38,7 +38,7 @@ const fr = {
   footer: {
     description: 'Des meubles réfléchis en matières naturelles, conçus pour les intérieurs du monde entier.',
     collection: 'Collection', studio: 'Studio', headquarters: 'Siège',
-    note: 'Dessiné à Cologne · Livré dans le monde entier', languages: en.footer.languages,
+    note: 'Dessiné à Astana · Livré dans le monde entier', languages: en.footer.languages,
   },
   home: {
     eyebrow: 'La collection Natural Living', title: 'Des meubles à la présence apaisée',
@@ -60,8 +60,8 @@ const fr = {
     popularTitle: 'La sélection', unavailableTitle: 'La collection est temporairement indisponible',
     materialsEyebrow: 'Bibliothèque de matières', materialsTitle: 'Des matières sincères, soigneusement finies',
     materialsText: 'Nous choisissons des bois expressifs, des huiles naturelles et des textiles durables qui gagnent en personnalité avec le temps.',
-    materialsCta: 'Notre fabrication', showroomTitle: 'Découvrez la collection à Cologne',
-    showroomText: 'Visitez notre siège de la Kleine Budengasse pour découvrir les échantillons, bénéficier de conseils et observer chaque détail.',
+    materialsCta: 'Notre fabrication', showroomTitle: 'Découvrez la collection à Astana',
+    showroomText: 'Visitez notre showroom d’Astana pour découvrir les échantillons, bénéficier de conseils et observer chaque détail.',
     showroomCta: 'Planifier votre visite',
   },
   catalog: {
@@ -113,11 +113,11 @@ const fr = {
     paletteText: 'Les bois chaleureux rencontrent la pierre mate, les textiles naturels et de discrètes touches de métal.',
   },
   contacts: {
-    eyebrow: 'Cologne · Sur rendez-vous', title: 'Visitez WoodStyle à Cologne',
+    eyebrow: 'Astana · Sur rendez-vous', title: 'Visitez WoodStyle à Astana',
     lead: 'Observez le veinage, comparez les finitions et échangez sur les proportions dans un espace calme dédié aux matières.',
     headquarters: 'Siège et showroom WoodStyle', route: 'Ouvrir dans Google Maps',
     loadMap: 'Charger Google Map', mapPrivacy: 'La connexion à Google ne se fait qu’après votre choix.',
-    mapTitle: 'Carte du siège WoodStyle à Cologne', details: 'Informations du showroom',
+    mapTitle: 'Carte du siège WoodStyle à Astana', details: 'Informations du showroom',
     hours: 'Horaires', getInTouch: 'Nous contacter', replyTime: 'Nous répondons sous un jour ouvré.',
     formTitle: 'Parlez-nous de votre recherche',
     formText: 'Décrivez votre pièce, les matières souhaitées ou votre question produit. Nous répondrons par e-mail.',

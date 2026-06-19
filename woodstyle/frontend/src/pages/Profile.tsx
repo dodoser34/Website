@@ -3,14 +3,16 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import { api } from '../api/client'
+import profileHero from '../assets/images/site/profile-hero-v1.webp'
 import Icon from '../components/Icon'
-import { Field, SelectField } from '../components/ui'
+import { Badge, Field, SelectField } from '../components/ui'
 import { countries } from '../config/showroom'
 import { useDocumentMeta } from '../hooks/useDocumentMeta'
 import { localeOptions } from '../i18n/config'
 import { getTranslations, interpolate } from '../i18n'
 import { usePreferencesStore, useSessionStore } from '../store/app'
 import type { Address, Locale } from '../types'
+import { formatDate, formatMoney } from '../utils/format'
 import { ConfirmDialog } from '../shared/ui/ConfirmDialog'
 import { useToast } from '../shared/ui/ToastProvider'
 
@@ -18,10 +20,10 @@ const blankAddress = (locale: Locale): Address => ({
   label: getTranslations(locale).profile.homeLabel,
   recipient_name: '',
   phone: '',
-  country_code: 'DE',
-  region: 'Nordrhein-Westfalen',
-  city: '',
-  postal_code: '',
+  country_code: 'KZ',
+  region: locale === 'ru' ? 'Астана' : 'Astana',
+  city: locale === 'ru' ? 'Астана' : 'Astana',
+  postal_code: '010000',
   address_line1: '',
   address_line2: '',
   is_default: false,
@@ -36,6 +38,7 @@ export default function Profile() {
   const me = useQuery({ queryKey: ['me'], queryFn: api.me })
   const currencies = useQuery({ queryKey: ['currencies'], queryFn: () => api.currencies() })
   const addresses = useQuery({ queryKey: ['addresses'], queryFn: api.addresses })
+  const orders = useQuery({ queryKey: ['orders'], queryFn: api.orders })
   const [form, setForm] = useState<{ first_name: string; last_name: string; phone: string; locale: Locale; currency_code: string }>({
     first_name: '', last_name: '', phone: '', locale: 'en', currency_code: 'USD',
   })
@@ -113,15 +116,31 @@ export default function Profile() {
       address.address_line1.trim().length >= 3,
     [address],
   )
+  const pageTitle = {
+    en: 'Your Profile',
+    ru: 'Ваш профиль',
+    de: 'Ihr Profil',
+    ja: 'プロフィール',
+    fr: 'Votre profil',
+  }[locale]
 
   return (
     <section className="container commerce-page profile-page">
-      <div className="profile-welcome">
+      <div className="profile-hero-strip reveal">
+        <div>
+          <span className="eyebrow"><span />{translations.common.account}</span>
+          <h1>{pageTitle}</h1>
+          <strong>{interpolate(copy.welcome, { name: me.data?.first_name || '' })}</strong>
+          <p>{copy.lead}</p>
+        </div>
+        <img src={profileHero} alt="" />
+      </div>
+      <div className="profile-welcome reveal reveal-delay-1">
         <div className="profile-avatar">{(me.data?.first_name?.[0] || me.data?.email?.[0] || 'W').toUpperCase()}</div>
         <div>
           <span className="eyebrow"><span />{me.data?.email}</span>
-          <h1>{interpolate(copy.welcome, { name: me.data?.first_name || '' })}</h1>
-          <p>{copy.lead}</p>
+          <h2>{me.data?.first_name} {me.data?.last_name}</h2>
+          <p>{me.data?.phone || copy.lead}</p>
         </div>
         <div className="profile-status-card">
           <Icon name="shield" />
@@ -129,8 +148,29 @@ export default function Profile() {
         </div>
       </div>
 
+      <div className="profile-overview-grid">
+        <section className="profile-overview-card reveal">
+          <span className="eyebrow"><span />{translations.common.profile}</span>
+          <div className="profile-overview-person">
+            <span className="profile-avatar">{(me.data?.first_name?.[0] || me.data?.email?.[0] || 'W').toUpperCase()}</span>
+            <div><strong>{me.data?.first_name} {me.data?.last_name}</strong><small>{me.data?.email}</small><small>{me.data?.phone || '—'}</small></div>
+          </div>
+        </section>
+        <section className="profile-recent-orders reveal reveal-delay-1">
+          <header><h2>{translations.common.orders}</h2><Link to="/orders">{translations.common.orders}<Icon name="arrow" size={15} /></Link></header>
+          {(orders.data || []).slice(0, 3).map((order) => (
+            <Link to="/orders" key={order.id}>
+              <span><strong>#{String(order.id).padStart(5, '0')}</strong><small>{formatDate(order.created_at, locale)}</small></span>
+              <Badge tone={order.status === 'delivered' ? 'success' : 'warning'}>{order.status}</Badge>
+              <strong>{formatMoney(order.total_minor, order.currency, order.currency_digits, locale)}</strong>
+            </Link>
+          ))}
+          {!orders.isLoading && !orders.data?.length && <p>{translations.orders.emptyText}</p>}
+        </section>
+      </div>
+
       <div className="profile-layout">
-        <nav className="profile-nav">
+        <nav className="profile-nav reveal">
           <Link className="active" to="/profile"><Icon name="user" />{translations.common.profile}</Link>
           <Link to="/orders"><Icon name="box" />{translations.common.orders}</Link>
           <Link to="/favorites"><Icon name="heart" />{translations.common.favorites}</Link>
@@ -138,7 +178,7 @@ export default function Profile() {
         </nav>
 
         <div className="profile-content">
-          <form className="form-panel" onSubmit={(event) => { event.preventDefault(); if (profileValid) save.mutate() }}>
+          <form className="form-panel reveal" onSubmit={(event) => { event.preventDefault(); if (profileValid) save.mutate() }}>
             <header><span>01</span><div><h2>{copy.personalDetails}</h2><p>{copy.personalHelp}</p></div></header>
             <div className="profile-email-card">
               <Icon name="mail" />
@@ -149,7 +189,7 @@ export default function Profile() {
               <Field label={copy.firstName} required value={form.first_name} onChange={(event) => setForm({ ...form, first_name: event.target.value })} />
               <Field label={copy.lastName} value={form.last_name} onChange={(event) => setForm({ ...form, last_name: event.target.value })} />
             </div>
-            <Field label={translations.common.phone} placeholder="+49 221 555 0174" value={form.phone} onChange={(event) => setForm({ ...form, phone: event.target.value })} />
+            <Field label={translations.common.phone} placeholder="+7 7172 55 01 74" value={form.phone} onChange={(event) => setForm({ ...form, phone: event.target.value })} />
             <div className="form-row">
               <SelectField label={copy.interfaceLanguage} value={form.locale} onChange={(event) => setForm({ ...form, locale: event.target.value as Locale })}>
                 {localeOptions.map((option) => <option value={option.code} key={option.code}>{option.name}</option>)}
@@ -163,7 +203,7 @@ export default function Profile() {
             <button type="submit" className="button button-primary" disabled={save.isPending || !profileValid}>{save.isPending ? translations.common.saving : translations.common.save}<Icon name="check" /></button>
           </form>
 
-          <section className="form-panel">
+          <section className="form-panel reveal reveal-delay-1">
             <header><span>02</span><div><h2>{copy.savedAddresses}</h2><p>{copy.addressesHelp}</p></div></header>
             <div className="saved-addresses">
               {(addresses.data || []).map((item) => (
@@ -187,7 +227,7 @@ export default function Profile() {
                 <Field label={copy.recipient} required value={address.recipient_name} onChange={(event) => setAddress({ ...address, recipient_name: event.target.value })} />
               </div>
               <div className="form-row">
-                <Field label={translations.common.phone} required value={address.phone} onChange={(event) => setAddress({ ...address, phone: event.target.value })} />
+                <Field label={translations.common.phone} required placeholder="+7 7172 55 01 74" value={address.phone} onChange={(event) => setAddress({ ...address, phone: event.target.value })} />
                 <SelectField label={copy.country} value={address.country_code} onChange={(event) => setAddress({ ...address, country_code: event.target.value })}>
                   {countries.map((item) => <option key={item.code} value={item.code}>{item.name[locale]} · {item.dialCode}</option>)}
                 </SelectField>

@@ -1,10 +1,11 @@
 import { useState } from 'react'
 
 import { api } from '../api/client'
-import showroomImage from '../assets/images/showroom-reception-v1.webp'
+import showroomImage from '../assets/images/site/showroom-reception-v2.webp'
 import Icon from '../components/Icon'
 import { Button, Field, TextareaField } from '../components/ui'
 import { showroom } from '../config/showroom'
+import { socialLinks } from '../config/socials'
 import { useDocumentMeta } from '../hooks/useDocumentMeta'
 import { getTranslations } from '../i18n'
 import { usePreferencesStore } from '../store/app'
@@ -61,16 +62,28 @@ export default function Contacts() {
           <a className="text-link" href={config.mapsUrl} target="_blank" rel="noreferrer">{copy.route}<Icon name="arrow" size={16} /></a>
         </article>
         <article className="contact-detail-card reveal reveal-delay-1">
-          <Icon name="clock" />
-          <small>{copy.hours}</small>
-          <div className="hours-list">{config.hours.map((row) => <span key={row.days}><strong>{row.days}</strong><em>{row.hours}</em></span>)}</div>
+          <Icon name="phone" />
+          <small>{translations.common.phone}</small>
+          <a href={`tel:${config.phone.replace(/\s/g, '')}`}>{config.phone}</a>
+          <p>{copy.replyTime}</p>
         </article>
         <article className="contact-detail-card reveal reveal-delay-2">
           <Icon name="mail" />
-          <small>{copy.getInTouch}</small>
+          <small>{translations.common.email}</small>
           <a href={`mailto:${config.email}`}>{config.email}</a>
-          <a href={`tel:${config.phone.replace(/\s/g, '')}`}>{config.phone}</a>
           <p>{copy.replyTime}</p>
+          <div className="contact-socials" aria-label="Social networks">
+            {socialLinks.map((social) => (
+              <a key={social.label} href={social.href} target="_blank" rel="noreferrer" aria-label={social.label}>
+                <Icon name={social.icon} size={16} />
+              </a>
+            ))}
+          </div>
+        </article>
+        <article className="contact-detail-card reveal reveal-delay-3">
+          <Icon name="clock" />
+          <small>{copy.hours}</small>
+          <div className="hours-list">{config.hours.map((row) => <span key={row.days}><strong>{row.days}</strong><em>{row.hours}</em></span>)}</div>
         </article>
       </section>
 
@@ -87,7 +100,7 @@ export default function Contacts() {
           ) : (
             <div className="map-placeholder">
               <span className="map-pin"><Icon name="map" size={30} /></span>
-              <div><strong>Kleine Budengasse 1-3, Köln</strong><p>{copy.mapPrivacy}</p></div>
+              <div><strong>{config.address}</strong><p>{copy.mapPrivacy}</p></div>
               <Button onClick={() => setMapLoaded(true)}>{copy.loadMap}<Icon name="arrow" /></Button>
             </div>
           )}
@@ -115,7 +128,7 @@ export default function Contacts() {
           </label>
           <div className="form-row">
             <Field label={copy.yourName} placeholder={copy.namePlaceholder} required minLength={2} value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} />
-            <Field label={translations.common.phone} placeholder="+49 221 555 0174" required minLength={7} value={form.phone} onChange={(event) => setForm({ ...form, phone: event.target.value })} />
+            <Field label={translations.common.phone} placeholder={config.phone} required minLength={7} value={form.phone} onChange={(event) => setForm({ ...form, phone: event.target.value })} />
           </div>
           <Field label={translations.common.email} type="email" placeholder="name@example.com" required value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} />
           <TextareaField label={copy.message} placeholder={copy.messagePlaceholder} required minLength={10} rows={6} value={form.message} onChange={(event) => setForm({ ...form, message: event.target.value })} />
