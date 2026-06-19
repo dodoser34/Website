@@ -6,8 +6,12 @@ from dotenv import load_dotenv
 
 
 BACKEND_DIR = Path(__file__).resolve().parents[2]
-ENV_FILE = BACKEND_DIR / ".env"
+PROJECT_ROOT = BACKEND_DIR.parent.parent
+ENV_FILE = PROJECT_ROOT / ".env"
+LEGACY_BACKEND_ENV_FILE = BACKEND_DIR / ".env"
+
 load_dotenv(ENV_FILE)
+load_dotenv(LEGACY_BACKEND_ENV_FILE)
 
 
 def env_bool(name: str, default: bool) -> bool:

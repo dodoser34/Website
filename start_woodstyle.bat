@@ -6,6 +6,15 @@ set "ROOT=%CD%"
 set "PYTHON=%ROOT%\.venv\Scripts\python.exe"
 set "BACKEND=%ROOT%\woodstyle\backend"
 set "FRONTEND=%ROOT%\woodstyle\frontend"
+set "ENV_FILE=%ROOT%\.env"
+set "ENV_EXAMPLE=%ROOT%\.env.example"
+
+if not exist "%ENV_FILE%" (
+  if exist "%ENV_EXAMPLE%" (
+    echo Creating root .env from .env.example...
+    copy "%ENV_EXAMPLE%" "%ENV_FILE%" >nul
+  )
+)
 
 if not exist "%PYTHON%" (
   echo [ERROR] Python environment was not found:

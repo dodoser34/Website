@@ -66,16 +66,22 @@ npm run dev
 
 ## Переменные окружения
 
-Шаблоны:
+Единый шаблон находится в корне проекта:
 
-- `woodstyle/backend/.env.example`
-- `woodstyle/frontend/.env.example`
+- `.env.example`
 
-Основные backend-переменные:
+Для локального запуска скопируйте его в `.env` в корне репозитория и меняйте
+только этот файл. Backend и frontend читают один и тот же `.env`.
+
+Основные переменные:
 
 ```env
 APP_ENV=development
 DEBUG=false
+VITE_API_URL=http://localhost:8000/api/v1
+VITE_FRONTEND_ONLY=false
+VITE_AUTH_STORAGE_MODE=local
+VITE_BASE_PATH=/
 WOODSTYLE_DATABASE_PATH=data/woodstyle.sqlite3
 WOODSTYLE_SECRET_KEY=replace-with-a-long-random-secret
 ACCESS_TOKEN_EXPIRE_MINUTES=15
@@ -105,9 +111,10 @@ ALLOWED_HOSTS=your-api.example
 
 Приложение не запустится в production без `WOODSTYLE_SECRET_KEY`.
 
-Локальный `.env` находится прямо в `woodstyle/backend/.env`, рядом с
-`main.py`, `seed.py`, `requirements.txt` и `alembic.ini`. SQLite-файл хранится
-отдельно от кода: `woodstyle/backend/data/woodstyle.sqlite3`.
+Локальный `.env` находится в корне репозитория. Старый
+`woodstyle/backend/.env` всё ещё читается как fallback, но новый единый формат
+для проекта — корневой `.env`. SQLite-файл хранится отдельно от кода:
+`woodstyle/backend/data/woodstyle.sqlite3`.
 
 ## Авторизация и refresh flow
 

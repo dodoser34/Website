@@ -1,4 +1,7 @@
 .venv/
+.env
+.env.local
+.env.production
 
 woodstyle/frontend/node_modules/
 woodstyle/frontend/dist/

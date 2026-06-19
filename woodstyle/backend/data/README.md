@@ -6,7 +6,7 @@
 data/woodstyle.sqlite3
 ```
 
-Файл базы не добавляется в Git. Путь задаётся в `backend/.env`:
+Файл базы не добавляется в Git. Путь задаётся в корневом `.env`:
 
 ```env
 WOODSTYLE_DATABASE_PATH=data/woodstyle.sqlite3
