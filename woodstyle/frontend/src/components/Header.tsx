@@ -63,6 +63,7 @@ export default function Header() {
     logout()
     queryClient.clear()
     toast.push(copy.common.logout, 'info')
+    setOpen(false)
     navigate('/')
   }
 
@@ -98,6 +99,64 @@ export default function Header() {
             <NavLink to="/about">{copy.common.about}</NavLink>
             <NavLink to="/contacts">{copy.common.contacts}</NavLink>
             {user?.role === 'admin' && <NavLink to="/admin">{copy.common.admin}</NavLink>}
+
+            <div className="mobile-nav-controls">
+              <div className="mobile-nav-label">{copy.common.language}</div>
+              <div className="mobile-language-grid" role="group" aria-label={copy.common.language}>
+                {localeOptions.map((option) => (
+                  <button
+                    type="button"
+                    key={option.code}
+                    className={locale === option.code ? 'active' : ''}
+                    onClick={() => setLocale(option.code)}
+                  >
+                    <strong>{option.shortLabel}</strong>
+                    <span>{option.name}</span>
+                  </button>
+                ))}
+              </div>
+              <label className="mobile-nav-select">
+                <span>{copy.common.currency}</span>
+                <select value={currency} onChange={(event) => setCurrency(event.target.value)}>
+                  {(currencies.data || []).map((item) => <option key={item.code} value={item.code}>{item.code} · {item.symbol}</option>)}
+                </select>
+              </label>
+            </div>
+
+            <div className="mobile-nav-actions">
+              <Link to="/catalog"><Icon name="search" /><span>{copy.common.search}</span></Link>
+              <Link to="/favorites"><Icon name="heart" /><span>{copy.common.favorites}</span>{favoriteCount > 0 && <em>{favoriteCount}</em>}</Link>
+              <Link to="/cart"><Icon name="cart" /><span>{copy.common.cart}</span>{cartCount > 0 && <em>{cartCount}</em>}</Link>
+            </div>
+
+            <div className="mobile-account-card">
+              {accessToken ? (
+                <>
+                  <div className="mobile-account-head">
+                    <span className="account-avatar">{(user?.first_name?.[0] || user?.email?.[0] || 'W').toUpperCase()}</span>
+                    <span>
+                      <strong>{user?.first_name || copy.common.account}</strong>
+                      <small>{user?.email || (user?.role === 'admin' ? copy.header.administrator : copy.header.member)}</small>
+                    </span>
+                  </div>
+                  <div className="mobile-account-links">
+                    <Link to="/profile"><Icon name="user" />{copy.common.profile}</Link>
+                    <Link to="/orders"><Icon name="box" />{copy.common.orders}</Link>
+                    {user?.role === 'admin' && <Link to="/admin"><Icon name="sparkles" />{copy.common.admin}</Link>}
+                    <button type="button" onClick={signOut}><Icon name="close" />{copy.common.logout}</button>
+                  </div>
+                </>
+              ) : (
+                <Link className="mobile-login-card" to="/auth">
+                  <Icon name="user" />
+                  <span>
+                    <strong>{copy.common.login}</strong>
+                    <small>{copy.auth.leadLogin}</small>
+                  </span>
+                </Link>
+              )}
+            </div>
+
             <div className="mobile-nav-contact">
               <small>{copy.header.headquarters}</small>
               <strong>{office.address}</strong>

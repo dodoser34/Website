@@ -157,6 +157,218 @@
       font: 400 15px var(--serif);
     }
 
+    .mobile-nav-controls {
+      display: grid;
+      gap: 13px;
+      margin: 18px 0;
+      padding: 18px 0;
+      border-top: 1px solid var(--line-dark);
+      border-bottom: 1px solid var(--line-dark);
+    }
+
+    .mobile-nav-label {
+      color: rgba(255, 255, 255, 0.58);
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .mobile-language-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .mobile-language-grid button {
+      display: grid;
+      min-height: 52px;
+      gap: 3px;
+      padding: 10px 12px;
+      border: 1px solid rgba(255, 255, 255, 0.13);
+      border-radius: 16px;
+      color: rgba(255, 255, 255, 0.78);
+      background: rgba(255, 255, 255, 0.06);
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .mobile-language-grid button strong {
+      color: #fff;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+    }
+
+    .mobile-language-grid button span {
+      overflow: hidden;
+      color: rgba(255, 255, 255, 0.58);
+      font-size: 8px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .mobile-language-grid button.active {
+      border-color: rgba(224, 199, 159, 0.75);
+      color: #201a12;
+      background: #e8d6b8;
+      box-shadow: 0 14px 36px rgba(0, 0, 0, 0.18);
+    }
+
+    .mobile-language-grid button.active strong,
+    .mobile-language-grid button.active span {
+      color: #201a12;
+    }
+
+    .mobile-nav-select {
+      display: flex;
+      min-height: 50px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 7px 8px 7px 13px;
+      border: 1px solid rgba(255, 255, 255, 0.13);
+      border-radius: 16px;
+      color: #fff;
+      background: rgba(255, 255, 255, 0.06);
+      font-size: 10px;
+      font-weight: 800;
+    }
+
+    .mobile-nav-select select {
+      height: 36px;
+      min-width: 112px;
+      padding: 0 12px;
+      border: 0;
+      border-radius: 999px;
+      color: #201a12;
+      background: #f7f0e6;
+      font-size: 10px;
+      font-weight: 900;
+    }
+
+    .mobile-nav-actions {
+      display: grid;
+      gap: 9px;
+      margin: 0 0 18px;
+    }
+
+    .mobile-nav-actions a {
+      display: flex;
+      min-height: 50px;
+      align-items: center;
+      gap: 12px;
+      padding: 0 14px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 17px;
+      color: #fff;
+      background: rgba(255, 255, 255, 0.055);
+      font-size: 10px;
+      font-weight: 800;
+    }
+
+    .mobile-nav-actions a svg {
+      flex: 0 0 auto;
+      color: #e0c79f;
+    }
+
+    .mobile-nav-actions a span {
+      flex: 1;
+    }
+
+    .mobile-nav-actions em {
+      display: grid;
+      min-width: 24px;
+      height: 24px;
+      padding: 0 7px;
+      place-items: center;
+      border-radius: 999px;
+      color: #1b2019;
+      background: #e0c79f;
+      font-size: 9px;
+      font-style: normal;
+      font-weight: 900;
+    }
+
+    .mobile-account-card {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 20px;
+      padding: 13px;
+      border: 1px solid rgba(224, 199, 159, 0.22);
+      border-radius: 22px;
+      background: rgba(255, 255, 255, 0.075);
+    }
+
+    .mobile-account-head,
+    .mobile-login-card {
+      display: flex;
+      min-width: 0;
+      align-items: center;
+      gap: 12px;
+      color: #fff;
+    }
+
+    .mobile-account-head > span:last-child,
+    .mobile-login-card > span {
+      display: grid;
+      min-width: 0;
+      gap: 3px;
+    }
+
+    .mobile-account-head strong,
+    .mobile-account-head small,
+    .mobile-login-card strong,
+    .mobile-login-card small {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .mobile-account-head strong,
+    .mobile-login-card strong {
+      font-size: 11px;
+    }
+
+    .mobile-account-head small,
+    .mobile-login-card small {
+      max-width: 260px;
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 8px;
+      line-height: 1.4;
+    }
+
+    .mobile-account-links {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .mobile-account-links a,
+    .mobile-account-links button {
+      display: flex;
+      min-height: 42px;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 0 9px;
+      border: 1px solid rgba(255, 255, 255, 0.11);
+      border-radius: 14px;
+      color: #fff;
+      background: rgba(255, 255, 255, 0.06);
+      font-size: 9px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .mobile-account-links button {
+      color: #ffc3b8;
+    }
+
+    .mobile-login-card {
+      min-height: 66px;
+      padding: 3px;
+    }
+
     .menu-button,
     .menu-backdrop {
       display: grid;
@@ -1535,6 +1747,16 @@
       justify-content: center;
     }
 
+    .main-nav {
+      width: 100vw;
+      padding: 20px 18px calc(22px + env(safe-area-inset-bottom));
+    }
+
+    .main-nav > a {
+      padding: 15px 0;
+      font-size: 22px;
+    }
+
     .brand {
       position: relative;
       z-index: 3;
@@ -1580,9 +1802,15 @@
     }
 
     .header-actions .desktop-action[href="/favorites"],
+    .header-actions .compact-select,
     .header-actions .header-login,
     .header-actions .account-menu {
       display: none;
+    }
+
+    .mobile-language-grid,
+    .mobile-account-links {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     .home-hero {

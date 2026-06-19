@@ -347,7 +347,10 @@
   }
 
   .mobile-nav-heading,
-  .mobile-nav-contact {
+  .mobile-nav-contact,
+  .mobile-nav-controls,
+  .mobile-nav-actions,
+  .mobile-account-card {
     display: none;
   }
 
