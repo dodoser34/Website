@@ -3,12 +3,16 @@
 woodstyle/frontend/node_modules/
 woodstyle/frontend/dist/
 woodstyle/frontend/.env
+woodstyle/frontend/.env.local
+woodstyle/frontend/.env.production
 
 woodstyle/backend/__pycache__/
 woodstyle/backend/**/__pycache__/
 woodstyle/backend/.pytest_cache/
 woodstyle/backend/.venv/
 woodstyle/backend/.env
+woodstyle/backend/.env.local
+woodstyle/backend/.env.production
 woodstyle/backend/*.py[cod]
 woodstyle/backend/*.db
 woodstyle/backend/data/*.db

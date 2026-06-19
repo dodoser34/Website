@@ -1,8 +1,9 @@
 import { usePreferencesStore, useSessionStore } from '../store/app'
+import { frontendOnly, mockRefreshAccessToken, mockRequest } from './mock'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'
 
-export const API_ORIGIN = API_URL.replace(/\/api\/v1\/?$/, '')
+export const API_ORIGIN = frontendOnly ? '' : API_URL.replace(/\/api\/v1\/?$/, '')
 
 interface RequestOptions extends RequestInit {
   auth?: boolean
@@ -25,6 +26,7 @@ function cookie(name: string): string {
 }
 
 export async function refreshAccessToken(): Promise<string> {
+  if (frontendOnly) return mockRefreshAccessToken()
   if (refreshPromise) return refreshPromise
   refreshPromise = (async () => {
     const refreshToken = useSessionStore.getState().refreshToken
@@ -63,6 +65,7 @@ export async function request<T>(
   path: string,
   options: RequestOptions = {},
 ): Promise<T> {
+  if (frontendOnly) return mockRequest<T>(path, options)
   const { auth = false, retryAuth = true, headers, ...init } = options
   const token = useSessionStore.getState().accessToken
   const locale = usePreferencesStore.getState().locale

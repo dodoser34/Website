@@ -84,7 +84,8 @@ for (const paths of Object.values(galleryMap)) {
 
 export function imageFor(path: string): string {
   if (!path) return loftySofaFront
-  if (path.startsWith('/media/')) return `${API_ORIGIN}${path}`
+  if (/^(data|blob):/.test(path)) return path
+  if (path.startsWith('/media/')) return API_ORIGIN ? `${API_ORIGIN}${path}` : loftySofaFront
   if (/^https?:\/\//.test(path)) return path
   return imageMap[path] || loftySofaFront
 }
